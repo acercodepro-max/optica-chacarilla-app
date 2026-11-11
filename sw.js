@@ -1,5 +1,5 @@
 // Service worker: permite instalar la app y abrirla sin conexión (datos frescos siempre desde la red)
-const C = 'tienda-v1';
+const C = 'tienda-v2';
 self.addEventListener('install', e => { e.waitUntil(caches.open(C).then(c => c.addAll(['./', 'index.html', 'manifest.json']))); self.skipWaiting(); });
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
 self.addEventListener('fetch', e => {

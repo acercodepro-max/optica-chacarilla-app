@@ -59,6 +59,12 @@ function calcular(array $emp, array $items, string $entrega): array {
   if ($entrega === 'delivery' && $hayProd) $envio = $neto >= (float)$emp['envio']['gratisDesde'] ? 0 : (float)$emp['envio']['costo'];
   return ['lineas' => $lineas, 'subtotal' => $sub, 'descuento' => $desc, 'envio' => r2($envio), 'total' => r2($neto + $envio)];
 }
+function limpiarUbigeo($u): array {
+  $u = is_array($u) ? $u : [];
+  $t = fn($k) => trim(mb_substr((string)($u[$k] ?? ''), 0, 60));
+  return ['codigo' => preg_match('/^\d{6}$/', (string)($u['codigo'] ?? '')) ? (string)$u['codigo'] : '',
+          'departamento' => $t('departamento'), 'provincia' => $t('provincia'), 'distrito' => $t('distrito')];
+}
 function limpiarDb(array $db): array {
   if (!isset($db['empresas']) || !is_array($db['empresas']) || !$db['empresas']) fail('Datos inválidos');
   foreach ($db['empresas'] as $e) {
@@ -114,6 +120,7 @@ switch ($action) {
       'email' => trim(mb_substr((string)($c['email'] ?? ''), 0, 120)),
       'entrega' => in_array($c['entrega'] ?? '', ['delivery', 'recojo', 'servicio'], true) ? $c['entrega'] : 'recojo',
       'direccion' => trim(mb_substr((string)($c['direccion'] ?? ''), 0, 200)),
+      'ubigeo' => limpiarUbigeo($c['ubigeo'] ?? []),
       'fechaServicio' => preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)($c['fechaServicio'] ?? '')) ? $c['fechaServicio'] : '',
       'pago' => in_array($c['pago'] ?? '', $emp['pagos'], true) ? $c['pago'] : '',
       'nota' => trim(mb_substr((string)($c['nota'] ?? ''), 0, 300)),
@@ -124,7 +131,8 @@ switch ($action) {
     $t = calcular($emp, (array)($in['items'] ?? []), $cli['entrega']);
     if (!$t['lineas']) fail('El carrito está vacío');
     $hayServ = (bool)array_filter($t['lineas'], fn($l) => $l['tipo'] === 'servicio');
-    if (($cli['entrega'] === 'delivery' || $hayServ) && mb_strlen($cli['direccion']) < 5) fail('Dirección inválida');
+    if (mb_strlen($cli['direccion']) < 5) fail('Dirección inválida');
+    if (!$cli['ubigeo']['codigo'] || !$cli['ubigeo']['distrito']) fail('Ubigeo inválido: elige departamento, provincia y distrito');
     if ($hayServ && (!$cli['fechaServicio'] || $cli['fechaServicio'] <= hoy())) fail('Fecha de servicio inválida');
     foreach ($t['lineas'] as $l) foreach ($emp['productos'] as $p)
       if ($p['id'] === $l['id'] && $p['tipo'] === 'producto' && $p['stock'] < $l['cant']) fail("Stock insuficiente de {$p['nombre']} (quedan {$p['stock']})", 409);

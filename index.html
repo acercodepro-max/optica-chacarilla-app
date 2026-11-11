@@ -111,6 +111,18 @@ label.f{display:block;font-size:13px;font-weight:600;margin:12px 0 5px}
 .demo-bar{background:#fff7e6;color:#7a4b00;font-size:12px;padding:7px 14px;text-align:center;border-bottom:1px solid #f5e0b3}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 hr{border:0;border-top:1px solid var(--line);margin:14px 0}
+.cartbtn{border:0;cursor:pointer;color:inherit;font:inherit;font-size:20px}
+.filtros{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.filtros .in{padding:9px 10px;font-size:13px}
+.grp{font-weight:800;font-size:16px;margin:18px 0 8px;display:flex;align-items:center;gap:8px}
+.grp span{font-size:11px;font-weight:700;background:var(--brand-soft);color:var(--brand);border-radius:999px;padding:2px 8px}
+.subgrp{font-size:13px;font-weight:700;color:var(--muted);margin:10px 0 8px}
+.psub{font-size:11.5px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.modal-bg.top{align-items:flex-start}.modal-bg.top .modal{border-radius:0 0 18px 18px;max-height:85vh}
+.qsr .adm-item{border-bottom:1px solid var(--line)}
+.ubi{display:grid;gap:8px}
+.trats{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}.trats label{font-size:12.5px}
 </style>
 </head>
 <body>
@@ -128,6 +140,13 @@ const MAX_PROD = 20, MAX_PROMO = 10;
 const ESTADOS = ['Nuevo','Confirmado','Pagado','En camino','Entregado','Cancelado'];
 const PAGOS = ['Yape','Plin','Transferencia','Tarjeta','Contra entrega'];
 const REDES = ['facebook','instagram','tiktok','youtube','x','linkedin'];
+const TIPOS_LENTE = ['Monofocal','Bifocal','Progresivo','Ocupacional','Lente de contacto','Sin medida'];
+const TRATAMIENTOS = ['Antirreflejo','Filtro luz azul','Fotocromático','Polarizado','Endurecido','Protección UV400','Hidrofóbico','Alto índice'];
+const BANCOS = ['BCP','Interbank','BBVA','Scotiabank','Banco de la Nación','BanBif','Pichincha','Caja Arequipa','Caja Huancayo','Caja Piura'];
+const TIPOS_CUENTA = ['Cuenta de ahorros soles','Cuenta corriente soles','Cuenta de ahorros dólares','Cuenta corriente dólares'];
+const norm = s => String(s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+/* Ubigeo Perú: [dep, nombre, [[prov, nombre, [[dist, nombre]]]]] – fuente: paquete npm peru-ubigeo (MIT) */
+const UBIGEO = [["01","Amazonas",[["01","Chachapoyas",[["01","Chachapoyas"],["02","Asunción"],["03","Balsas"],["04","Cheto"],["05","Chiliquin"],["06","Chuquibamba"],["07","Granada"],["08","Huancas"],["09","La Jalca"],["10","Leimebamba"],["11","Levanto"],["12","Magdalena"],["13","Mariscal Castilla"],["14","Molinopampa"],["15","Montevideo"],["16","Olleros"],["17","Quinjalca"],["18","San Francisco de Daguas"],["19","San Isidro de Maino"],["20","Soloco"],["21","Sonche"]]],["02","Bagua",[["01","Bagua"],["02","Aramango"],["03","Copallin"],["04","El Parco"],["05","Imaza"],["06","La Peca"]]],["03","Bongará",[["01","Jumbilla"],["02","Chisquilla"],["03","Churuja"],["04","Corosha"],["05","Cuispes"],["06","Florida"],["07","Jazan"],["08","Recta"],["09","San Carlos"],["10","Shipasbamba"],["11","Valera"],["12","Yambrasbamba"]]],["04","Condorcanqui",[["01","Nieva"],["02","El Cenepa"],["03","Río Santiago"]]],["05","Luya",[["01","Lamud"],["02","Camporredondo"],["03","Cocabamba"],["04","Colcamar"],["05","Conila"],["06","Inguilpata"],["07","Longuita"],["08","Lonya Chico"],["09","Luya"],["10","Luya Viejo"],["11","María"],["12","Ocalli"],["13","Ocumal"],["14","Pisuquia"],["15","Providencia"],["16","San Cristóbal"],["17","San Francisco de Yeso"],["18","San Jerónimo"],["19","San Juan de Lopecancha"],["20","Santa Catalina"],["21","Santo Tomas"],["22","Tingo"],["23","Trita"]]],["06","Rodríguez de Mendoza",[["01","San Nicolás"],["02","Chirimoto"],["03","Cochamal"],["04","Huambo"],["05","Limabamba"],["06","Longar"],["07","Mariscal Benavides"],["08","Milpuc"],["09","Omia"],["10","Santa Rosa"],["11","Totora"],["12","Vista Alegre"]]],["07","Utcubamba",[["01","Bagua Grande"],["02","Cajaruro"],["03","Cumba"],["04","El Milagro"],["05","Jamalca"],["06","Lonya Grande"],["07","Yamon"]]]]],["02","Áncash",[["01","Huaraz",[["01","Huaraz"],["02","Cochabamba"],["03","Colcabamba"],["04","Huanchay"],["05","Independencia"],["06","Jangas"],["07","La Libertad"],["08","Olleros"],["09","Pampas Grande"],["10","Pariacoto"],["11","Pira"],["12","Tarica"]]],["02","Aija",[["01","Aija"],["02","Coris"],["03","Huacllan"],["04","La Merced"],["05","Succha"]]],["03","Antonio Raymondi",[["01","Llamellin"],["02","Aczo"],["03","Chaccho"],["04","Chingas"],["05","Mirgas"],["06","San Juan de Rontoy"]]],["04","Asunción",[["01","Chacas"],["02","Acochaca"]]],["05","Bolognesi",[["01","Chiquian"],["02","Abelardo Pardo Lezameta"],["03","Antonio Raymondi"],["04","Aquia"],["05","Cajacay"],["06","Canis"],["07","Colquioc"],["08","Huallanca"],["09","Huasta"],["10","Huayllacayan"],["11","La Primavera"],["12","Mangas"],["13","Pacllon"],["14","San Miguel de Corpanqui"],["15","Ticllos"]]],["06","Carhuaz",[["01","Carhuaz"],["02","Acopampa"],["03","Amashca"],["04","Anta"],["05","Ataquero"],["06","Marcara"],["07","Pariahuanca"],["08","San Miguel de Aco"],["09","Shilla"],["10","Tinco"],["11","Yungar"]]],["07","Carlos Fermín Fitzcarrald",[["01","San Luis"],["02","San Nicolás"],["03","Yauya"]]],["08","Casma",[["01","Casma"],["02","Buena Vista Alta"],["03","Comandante Noel"],["04","Yautan"]]],["09","Corongo",[["01","Corongo"],["02","Aco"],["03","Bambas"],["04","Cusca"],["05","La Pampa"],["06","Yanac"],["07","Yupan"]]],["10","Huari",[["01","Huari"],["02","Anra"],["03","Cajay"],["04","Chavin de Huantar"],["05","Huacachi"],["06","Huacchis"],["07","Huachis"],["08","Huantar"],["09","Masin"],["10","Paucas"],["11","Ponto"],["12","Rahuapampa"],["13","Rapayan"],["14","San Marcos"],["15","San Pedro de Chana"],["16","Uco"]]],["11","Huarmey",[["01","Huarmey"],["02","Cochapeti"],["03","Culebras"],["04","Huayan"],["05","Malvas"]]],["12","Huaylas",[["01","Caraz"],["02","Huallanca"],["03","Huata"],["04","Huaylas"],["05","Mato"],["06","Pamparomas"],["07","Pueblo Libre"],["08","Santa Cruz"],["09","Santo Toribio"],["10","Yuracmarca"]]],["13","Mariscal Luzuriaga",[["01","Piscobamba"],["02","Casca"],["03","Eleazar Guzmán Barron"],["04","Fidel Olivas Escudero"],["05","Llama"],["06","Llumpa"],["07","Lucma"],["08","Musga"]]],["14","Ocros",[["01","Ocros"],["02","Acas"],["03","Cajamarquilla"],["04","Carhuapampa"],["05","Cochas"],["06","Congas"],["07","Llipa"],["08","San Cristóbal de Rajan"],["09","San Pedro"],["10","Santiago de Chilcas"]]],["15","Pallasca",[["01","Cabana"],["02","Bolognesi"],["03","Conchucos"],["04","Huacaschuque"],["05","Huandoval"],["06","Lacabamba"],["07","Llapo"],["08","Pallasca"],["09","Pampas"],["10","Santa Rosa"],["11","Tauca"]]],["16","Pomabamba",[["01","Pomabamba"],["02","Huayllan"],["03","Parobamba"],["04","Quinuabamba"]]],["17","Recuay",[["01","Recuay"],["02","Catac"],["03","Cotaparaco"],["04","Huayllapampa"],["05","Llacllin"],["06","Marca"],["07","Pampas Chico"],["08","Pararin"],["09","Tapacocha"],["10","Ticapampa"]]],["18","Santa",[["01","Chimbote"],["02","Cáceres del Perú"],["03","Coishco"],["04","Macate"],["05","Moro"],["06","Nepeña"],["07","Samanco"],["08","Santa"],["09","Nuevo Chimbote"]]],["19","Sihuas",[["01","Sihuas"],["02","Acobamba"],["03","Alfonso Ugarte"],["04","Cashapampa"],["05","Chingalpo"],["06","Huayllabamba"],["07","Quiches"],["08","Ragash"],["09","San Juan"],["10","Sicsibamba"]]],["20","Yungay",[["01","Yungay"],["02","Cascapara"],["03","Mancos"],["04","Matacoto"],["05","Quillo"],["06","Ranrahirca"],["07","Shupluy"],["08","Yanama"]]]]],["03","Apurímac",[["01","Abancay",[["01","Abancay"],["02","Chacoche"],["03","Circa"],["04","Curahuasi"],["05","Huanipaca"],["06","Lambrama"],["07","Pichirhua"],["08","San Pedro de Cachora"],["09","Tamburco"]]],["02","Andahuaylas",[["01","Andahuaylas"],["02","Andarapa"],["03","Chiara"],["04","Huancarama"],["05","Huancaray"],["06","Huayana"],["07","Kishuara"],["08","Pacobamba"],["09","Pacucha"],["10","Pampachiri"],["11","Pomacocha"],["12","San Antonio de Cachi"],["13","San Jerónimo"],["14","San Miguel de Chaccrampa"],["15","Santa María de Chicmo"],["16","Talavera"],["17","Tumay Huaraca"],["18","Turpo"],["19","Kaquiabamba"],["20","José María Arguedas"]]],["03","Antabamba",[["01","Antabamba"],["02","El Oro"],["03","Huaquirca"],["04","Juan Espinoza Medrano"],["05","Oropesa"],["06","Pachaconas"],["07","Sabaino"]]],["04","Aymaraes",[["01","Chalhuanca"],["02","Capaya"],["03","Caraybamba"],["04","Chapimarca"],["05","Colcabamba"],["06","Cotaruse"],["07","Ihuayllo"],["08","Justo Apu Sahuaraura"],["09","Lucre"],["10","Pocohuanca"],["11","San Juan de Chacña"],["12","Sañayca"],["13","Soraya"],["14","Tapairihua"],["15","Tintay"],["16","Toraya"],["17","Yanaca"]]],["05","Cotabambas",[["01","Tambobamba"],["02","Cotabambas"],["03","Coyllurqui"],["04","Haquira"],["05","Mara"],["06","Challhuahuacho"]]],["06","Chincheros",[["01","Chincheros"],["02","Anco_Huallo"],["03","Cocharcas"],["04","Huaccana"],["05","Ocobamba"],["06","Ongoy"],["07","Uranmarca"],["08","Ranracancha"],["09","Rocchacc"],["10","El Porvenir"],["11","Los Chankas"],["12","Ahuayro"]]],["07","Grau",[["01","Chuquibambilla"],["02","Curpahuasi"],["03","Gamarra"],["04","Huayllati"],["05","Mamara"],["06","Micaela Bastidas"],["07","Pataypampa"],["08","Progreso"],["09","San Antonio"],["10","Santa Rosa"],["11","Turpay"],["12","Vilcabamba"],["13","Virundo"],["14","Curasco"]]]]],["04","Arequipa",[["01","Arequipa",[["01","Arequipa"],["02","Alto Selva Alegre"],["03","Cayma"],["04","Cerro Colorado"],["05","Characato"],["06","Chiguata"],["07","Jacobo Hunter"],["08","La Joya"],["09","Mariano Melgar"],["10","Miraflores"],["11","Mollebaya"],["12","Paucarpata"],["13","Pocsi"],["14","Polobaya"],["15","Quequeña"],["16","Sabandia"],["17","Sachaca"],["18","San Juan de Siguas"],["19","San Juan de Tarucani"],["20","Santa Isabel de Siguas"],["21","Santa Rita de Siguas"],["22","Socabaya"],["23","Tiabaya"],["24","Uchumayo"],["25","Vitor"],["26","Yanahuara"],["27","Yarabamba"],["28","Yura"],["29","José Luis Bustamante Y Rivero"]]],["02","Camaná",[["01","Camaná"],["02","José María Quimper"],["03","Mariano Nicolás Valcárcel"],["04","Mariscal Cáceres"],["05","Nicolás de Pierola"],["06","Ocoña"],["07","Quilca"],["08","Samuel Pastor"]]],["03","Caravelí",[["01","Caravelí"],["02","Acarí"],["03","Atico"],["04","Atiquipa"],["05","Bella Unión"],["06","Cahuacho"],["07","Chala"],["08","Chaparra"],["09","Huanuhuanu"],["10","Jaqui"],["11","Lomas"],["12","Quicacha"],["13","Yauca"]]],["04","Castilla",[["01","Aplao"],["02","Andagua"],["03","Ayo"],["04","Chachas"],["05","Chilcaymarca"],["06","Choco"],["07","Huancarqui"],["08","Machaguay"],["09","Orcopampa"],["10","Pampacolca"],["11","Tipan"],["12","Uñon"],["13","Uraca"],["14","Viraco"]]],["05","Caylloma",[["01","Chivay"],["02","Achoma"],["03","Cabanaconde"],["04","Callalli"],["05","Caylloma"],["06","Coporaque"],["07","Huambo"],["08","Huanca"],["09","Ichupampa"],["10","Lari"],["11","Lluta"],["12","Maca"],["13","Madrigal"],["14","San Antonio de Chuca"],["15","Sibayo"],["16","Tapay"],["17","Tisco"],["18","Tuti"],["19","Yanque"],["20","Majes"]]],["06","Condesuyos",[["01","Chuquibamba"],["02","Andaray"],["03","Cayarani"],["04","Chichas"],["05","Iray"],["06","Río Grande"],["07","Salamanca"],["08","Yanaquihua"]]],["07","Islay",[["01","Mollendo"],["02","Cocachacra"],["03","Dean Valdivia"],["04","Islay"],["05","Mejia"],["06","Punta de Bombón"]]],["08","La Uniòn",[["01","Cotahuasi"],["02","Alca"],["03","Charcana"],["04","Huaynacotas"],["05","Pampamarca"],["06","Puyca"],["07","Quechualla"],["08","Sayla"],["09","Tauria"],["10","Tomepampa"],["11","Toro"]]]]],["05","Ayacucho",[["01","Huamanga",[["01","Ayacucho"],["02","Acocro"],["03","Acos Vinchos"],["04","Carmen Alto"],["05","Chiara"],["06","Ocros"],["07","Pacaycasa"],["08","Quinua"],["09","San José de Ticllas"],["10","San Juan Bautista"],["11","Santiago de Pischa"],["12","Socos"],["13","Tambillo"],["14","Vinchos"],["15","Jesús Nazareno"],["16","Andrés Avelino Cáceres Dorregaray"]]],["02","Cangallo",[["01","Cangallo"],["02","Chuschi"],["03","Los Morochucos"],["04","María Parado de Bellido"],["05","Paras"],["06","Totos"]]],["03","Huanca Sancos",[["01","Sancos"],["02","Carapo"],["03","Sacsamarca"],["04","Santiago de Lucanamarca"]]],["04","Huanta",[["01","Huanta"],["02","Ayahuanco"],["03","Huamanguilla"],["04","Iguain"],["05","Luricocha"],["06","Santillana"],["07","Sivia"],["08","Llochegua"],["09","Canayre"],["10","Uchuraccay"],["11","Pucacolpa"],["12","Chaca"],["13","Putis"]]],["05","La Mar",[["01","San Miguel"],["02","Anco"],["03","Ayna"],["04","Chilcas"],["05","Chungui"],["06","Luis Carranza"],["07","Santa Rosa"],["08","Tambo"],["09","Samugari"],["10","Anchihuay"],["11","Oronccoy"],["12","Unión Progreso"],["13","Rio Magdalena"],["14","Ninabamba"],["15","Patibamba"]]],["06","Lucanas",[["01","Puquio"],["02","Aucara"],["03","Cabana"],["04","Carmen Salcedo"],["05","Chaviña"],["06","Chipao"],["07","Huac-Huas"],["08","Laramate"],["09","Leoncio Prado"],["10","Llauta"],["11","Lucanas"],["12","Ocaña"],["13","Otoca"],["14","Saisa"],["15","San Cristóbal"],["16","San Juan"],["17","San Pedro"],["18","San Pedro de Palco"],["19","Sancos"],["20","Santa Ana de Huaycahuacho"],["21","Santa Lucia"]]],["07","Parinacochas",[["01","Coracora"],["02","Chumpi"],["03","Coronel Castañeda"],["04","Pacapausa"],["05","Pullo"],["06","Puyusca"],["07","San Francisco de Rivacayco"],["08","Upahuacho"]]],["08","Pàucar del Sara Sara",[["01","Pausa"],["02","Colta"],["03","Corculla"],["04","Lampa"],["05","Marcabamba"],["06","Oyolo"],["07","Pararca"],["08","San Javier de Alpabamba"],["09","San José de Ushua"],["10","Sara Sara"]]],["09","Sucre",[["01","Querobamba"],["02","Belén"],["03","Chalcos"],["04","Chilcayoc"],["05","Huacaña"],["06","Morcolla"],["07","Paico"],["08","San Pedro de Larcay"],["09","San Salvador de Quije"],["10","Santiago de Paucaray"],["11","Soras"]]],["10","Víctor Fajardo",[["01","Huancapi"],["02","Alcamenca"],["03","Apongo"],["04","Asquipata"],["05","Canaria"],["06","Cayara"],["07","Colca"],["08","Huamanquiquia"],["09","Huancaraylla"],["10","Hualla"],["11","Sarhua"],["12","Vilcanchos"]]],["11","Vilcas Huamán",[["01","Vilcas Huaman"],["02","Accomarca"],["03","Carhuanca"],["04","Concepción"],["05","Huambalpa"],["06","Independencia"],["07","Saurama"],["08","Vischongo"]]]]],["06","Cajamarca",[["01","Cajamarca",[["01","Cajamarca"],["02","Asunción"],["03","Chetilla"],["04","Cospan"],["05","Encañada"],["06","Jesús"],["07","Llacanora"],["08","Los Baños del Inca"],["09","Magdalena"],["10","Matara"],["11","Namora"],["12","San Juan"]]],["02","Cajabamba",[["01","Cajabamba"],["02","Cachachi"],["03","Condebamba"],["04","Sitacocha"]]],["03","Celendín",[["01","Celendín"],["02","Chumuch"],["03","Cortegana"],["04","Huasmin"],["05","Jorge Chávez"],["06","José Gálvez"],["07","Miguel Iglesias"],["08","Oxamarca"],["09","Sorochuco"],["10","Sucre"],["11","Utco"],["12","La Libertad de Pallan"]]],["04","Chota",[["01","Chota"],["02","Anguia"],["03","Chadin"],["04","Chiguirip"],["05","Chimban"],["06","Choropampa"],["07","Cochabamba"],["08","Conchan"],["09","Huambos"],["10","Lajas"],["11","Llama"],["12","Miracosta"],["13","Paccha"],["14","Pion"],["15","Querocoto"],["16","San Juan de Licupis"],["17","Tacabamba"],["18","Tocmoche"],["19","Chalamarca"]]],["05","Contumazá",[["01","Contumaza"],["02","Chilete"],["03","Cupisnique"],["04","Guzmango"],["05","San Benito"],["06","Santa Cruz de Toledo"],["07","Tantarica"],["08","Yonan"]]],["06","Cutervo",[["01","Cutervo"],["02","Callayuc"],["03","Choros"],["04","Cujillo"],["05","La Ramada"],["06","Pimpingos"],["07","Querocotillo"],["08","San Andrés de Cutervo"],["09","San Juan de Cutervo"],["10","San Luis de Lucma"],["11","Santa Cruz"],["12","Santo Domingo de la Capilla"],["13","Santo Tomas"],["14","Socota"],["15","Toribio Casanova"]]],["07","Hualgayoc",[["01","Bambamarca"],["02","Chugur"],["03","Hualgayoc"]]],["08","Jaén",[["01","Jaén"],["02","Bellavista"],["03","Chontali"],["04","Colasay"],["05","Huabal"],["06","Las Pirias"],["07","Pomahuaca"],["08","Pucara"],["09","Sallique"],["10","San Felipe"],["11","San José del Alto"],["12","Santa Rosa"]]],["09","San Ignacio",[["01","San Ignacio"],["02","Chirinos"],["03","Huarango"],["04","La Coipa"],["05","Namballe"],["06","San José de Lourdes"],["07","Tabaconas"]]],["10","San Marcos",[["01","Pedro Gálvez"],["02","Chancay"],["03","Eduardo Villanueva"],["04","Gregorio Pita"],["05","Ichocan"],["06","José Manuel Quiroz"],["07","José Sabogal"]]],["11","San Miguel",[["01","San Miguel"],["02","Bolívar"],["03","Calquis"],["04","Catilluc"],["05","El Prado"],["06","La Florida"],["07","Llapa"],["08","Nanchoc"],["09","Niepos"],["10","San Gregorio"],["11","San Silvestre de Cochan"],["12","Tongod"],["13","Unión Agua Blanca"]]],["12","San Pablo",[["01","San Pablo"],["02","San Bernardino"],["03","San Luis"],["04","Tumbaden"]]],["13","Santa Cruz",[["01","Santa Cruz"],["02","Andabamba"],["03","Catache"],["04","Chancaybaños"],["05","La Esperanza"],["06","Ninabamba"],["07","Pulan"],["08","Saucepampa"],["09","Sexi"],["10","Uticyacu"],["11","Yauyucan"]]]]],["07","Callao",[["01","Prov. Const. del Callao",[["01","Callao"],["02","Bellavista"],["03","Carmen de la Legua Reynoso"],["04","La Perla"],["05","La Punta"],["06","Ventanilla"],["07","Mi Perú"]]]]],["08","Cusco",[["01","Cusco",[["01","Cusco"],["02","Ccorca"],["03","Poroy"],["04","San Jerónimo"],["05","San Sebastian"],["06","Santiago"],["07","Saylla"],["08","Wanchaq"]]],["02","Acomayo",[["01","Acomayo"],["02","Acopia"],["03","Acos"],["04","Mosoc Llacta"],["05","Pomacanchi"],["06","Rondocan"],["07","Sangarara"]]],["03","Anta",[["01","Anta"],["02","Ancahuasi"],["03","Cachimayo"],["04","Chinchaypujio"],["05","Huarocondo"],["06","Limatambo"],["07","Mollepata"],["08","Pucyura"],["09","Zurite"]]],["04","Calca",[["01","Calca"],["02","Coya"],["03","Lamay"],["04","Lares"],["05","Pisac"],["06","San Salvador"],["07","Taray"],["08","Yanatile"]]],["05","Canas",[["01","Yanaoca"],["02","Checca"],["03","Kunturkanki"],["04","Langui"],["05","Layo"],["06","Pampamarca"],["07","Quehue"],["08","Tupac Amaru"]]],["06","Canchis",[["01","Sicuani"],["02","Checacupe"],["03","Combapata"],["04","Marangani"],["05","Pitumarca"],["06","San Pablo"],["07","San Pedro"],["08","Tinta"]]],["07","Chumbivilcas",[["01","Santo Tomas"],["02","Capacmarca"],["03","Chamaca"],["04","Colquemarca"],["05","Livitaca"],["06","Llusco"],["07","Quiñota"],["08","Velille"]]],["08","Espinar",[["01","Espinar"],["02","Condoroma"],["03","Coporaque"],["04","Ocoruro"],["05","Pallpata"],["06","Pichigua"],["07","Suyckutambo"],["08","Alto Pichigua"]]],["09","La Convención",[["01","Santa Ana"],["02","Echarate"],["03","Huayopata"],["04","Maranura"],["05","Ocobamba"],["06","Quellouno"],["07","Kimbiri"],["08","Santa Teresa"],["09","Vilcabamba"],["10","Pichari"],["11","Inkawasi"],["12","Villa Virgen"],["13","Villa Kintiarina"],["14","Megantoni"],["15","Kumpirushiato"],["16","Cielo Punco"],["17","Manitea"],["18","Unión Ashaninka"]]],["10","Paruro",[["01","Paruro"],["02","Accha"],["03","Ccapi"],["04","Colcha"],["05","Huanoquite"],["06","Omacha"],["07","Paccaritambo"],["08","Pillpinto"],["09","Yaurisque"]]],["11","Paucartambo",[["01","Paucartambo"],["02","Caicay"],["03","Challabamba"],["04","Colquepata"],["05","Huancarani"],["06","Kosñipata"]]],["12","Quispicanchi",[["01","Urcos"],["02","Andahuaylillas"],["03","Camanti"],["04","Ccarhuayo"],["05","Ccatca"],["06","Cusipata"],["07","Huaro"],["08","Lucre"],["09","Marcapata"],["10","Ocongate"],["11","Oropesa"],["12","Quiquijana"]]],["13","Urubamba",[["01","Urubamba"],["02","Chinchero"],["03","Huayllabamba"],["04","Machupicchu"],["05","Maras"],["06","Ollantaytambo"],["07","Yucay"]]]]],["09","Huancavelica",[["01","Huancavelica",[["01","Huancavelica"],["02","Acobambilla"],["03","Acoria"],["04","Conayca"],["05","Cuenca"],["06","Huachocolpa"],["07","Huayllahuara"],["08","Izcuchaca"],["09","Laria"],["10","Manta"],["11","Mariscal Cáceres"],["12","Moya"],["13","Nuevo Occoro"],["14","Palca"],["15","Pilchaca"],["16","Vilca"],["17","Yauli"],["18","Ascensión"],["19","Huando"]]],["02","Acobamba",[["01","Acobamba"],["02","Andabamba"],["03","Anta"],["04","Caja"],["05","Marcas"],["06","Paucara"],["07","Pomacocha"],["08","Rosario"]]],["03","Angaraes",[["01","Lircay"],["02","Anchonga"],["03","Callanmarca"],["04","Ccochaccasa"],["05","Chincho"],["06","Congalla"],["07","Huanca-Huanca"],["08","Huayllay Grande"],["09","Julcamarca"],["10","San Antonio de Antaparco"],["11","Santo Tomas de Pata"],["12","Secclla"]]],["04","Castrovirreyna",[["01","Castrovirreyna"],["02","Arma"],["03","Aurahua"],["04","Capillas"],["05","Chupamarca"],["06","Cocas"],["07","Huachos"],["08","Huamatambo"],["09","Mollepampa"],["10","San Juan"],["11","Santa Ana"],["12","Tantara"],["13","Ticrapo"]]],["05","Churcampa",[["01","Churcampa"],["02","Anco"],["03","Chinchihuasi"],["04","El Carmen"],["05","La Merced"],["06","Locroja"],["07","Paucarbamba"],["08","San Miguel de Mayocc"],["09","San Pedro de Coris"],["10","Pachamarca"],["11","Cosme"]]],["06","Huaytará",[["01","Huaytara"],["02","Ayavi"],["03","Córdova"],["04","Huayacundo Arma"],["05","Laramarca"],["06","Ocoyo"],["07","Pilpichaca"],["08","Querco"],["09","Quito-Arma"],["10","San Antonio de Cusicancha"],["11","San Francisco de Sangayaico"],["12","San Isidro"],["13","Santiago de Chocorvos"],["14","Santiago de Quirahuara"],["15","Santo Domingo de Capillas"],["16","Tambo"]]],["07","Tayacaja",[["01","Pampas"],["02","Acostambo"],["03","Acraquia"],["04","Ahuaycha"],["05","Colcabamba"],["06","Daniel Hernández"],["07","Huachocolpa"],["09","Huaribamba"],["10","Ñahuimpuquio"],["11","Pazos"],["13","Quishuar"],["14","Salcabamba"],["15","Salcahuasi"],["16","San Marcos de Rocchac"],["17","Surcubamba"],["18","Tintay Puncu"],["19","Quichuas"],["20","Andaymarca"],["21","Roble"],["22","Pichos"],["23","Santiago de Tucuma"],["24","Lambras"],["25","Cochabamba"]]]]],["10","Huánuco",[["01","Huánuco",[["01","Huanuco"],["02","Amarilis"],["03","Chinchao"],["04","Churubamba"],["05","Margos"],["06","Quisqui (Kichki)"],["07","San Francisco de Cayran"],["08","San Pedro de Chaulan"],["09","Santa María del Valle"],["10","Yarumayo"],["11","Pillco Marca"],["12","Yacus"],["13","San Pablo de Pillao"]]],["02","Ambo",[["01","Ambo"],["02","Cayna"],["03","Colpas"],["04","Conchamarca"],["05","Huacar"],["06","San Francisco"],["07","San Rafael"],["08","Tomay Kichwa"]]],["03","Dos de Mayo",[["01","La Unión"],["07","Chuquis"],["11","Marías"],["13","Pachas"],["16","Quivilla"],["17","Ripan"],["21","Shunqui"],["22","Sillapata"],["23","Yanas"]]],["04","Huacaybamba",[["01","Huacaybamba"],["02","Canchabamba"],["03","Cochabamba"],["04","Pinra"]]],["05","Huamalíes",[["01","Llata"],["02","Arancay"],["03","Chavín de Pariarca"],["04","Jacas Grande"],["05","Jircan"],["06","Miraflores"],["07","Monzón"],["08","Punchao"],["09","Puños"],["10","Singa"],["11","Tantamayo"]]],["06","Leoncio Prado",[["01","Rupa-Rupa"],["02","Daniel Alomía Robles"],["03","Hermílio Valdizan"],["04","José Crespo y Castillo"],["05","Luyando"],["06","Mariano Damaso Beraun"],["07","Pucayacu"],["08","Castillo Grande"],["09","Pueblo Nuevo"],["10","Santo Domingo de Anda"]]],["07","Marañón",[["01","Huacrachuco"],["02","Cholon"],["03","San Buenaventura"],["04","La Morada"],["05","Santa Rosa de Alto Yanajanca"]]],["08","Pachitea",[["01","Panao"],["02","Chaglla"],["03","Molino"],["04","Umari"]]],["09","Puerto Inca",[["01","Puerto Inca"],["02","Codo del Pozuzo"],["03","Honoria"],["04","Tournavista"],["05","Yuyapichis"]]],["10","Lauricocha",[["01","Jesús"],["02","Baños"],["03","Jivia"],["04","Queropalca"],["05","Rondos"],["06","San Francisco de Asís"],["07","San Miguel de Cauri"]]],["11","Yarowilca",[["01","Chavinillo"],["02","Cahuac"],["03","Chacabamba"],["04","Aparicio Pomares"],["05","Jacas Chico"],["06","Obas"],["07","Pampamarca"],["08","Choras"]]]]],["11","Ica",[["01","Ica",[["01","Ica"],["02","La Tinguiña"],["03","Los Aquijes"],["04","Ocucaje"],["05","Pachacutec"],["06","Parcona"],["07","Pueblo Nuevo"],["08","Salas"],["09","San José de Los Molinos"],["10","San Juan Bautista"],["11","Santiago"],["12","Subtanjalla"],["13","Tate"],["14","Yauca del Rosario"]]],["02","Chincha",[["01","Chincha Alta"],["02","Alto Laran"],["03","Chavin"],["04","Chincha Baja"],["05","El Carmen"],["06","Grocio Prado"],["07","Pueblo Nuevo"],["08","San Juan de Yanac"],["09","San Pedro de Huacarpana"],["10","Sunampe"],["11","Tambo de Mora"]]],["03","Nasca",[["01","Nasca"],["02","Changuillo"],["03","El Ingenio"],["04","Marcona"],["05","Vista Alegre"]]],["04","Palpa",[["01","Palpa"],["02","Llipata"],["03","Río Grande"],["04","Santa Cruz"],["05","Tibillo"]]],["05","Pisco",[["01","Pisco"],["02","Huancano"],["03","Humay"],["04","Independencia"],["05","Paracas"],["06","San Andrés"],["07","San Clemente"],["08","Tupac Amaru Inca"]]]]],["12","Junín",[["01","Huancayo",[["01","Huancayo"],["04","Carhuacallanga"],["05","Chacapampa"],["06","Chicche"],["07","Chilca"],["08","Chongos Alto"],["11","Chupuro"],["12","Colca"],["13","Cullhuas"],["14","El Tambo"],["16","Huacrapuquio"],["17","Hualhuas"],["19","Huancan"],["20","Huasicancha"],["21","Huayucachi"],["22","Ingenio"],["24","Pariahuanca"],["25","Pilcomayo"],["26","Pucara"],["27","Quichuay"],["28","Quilcas"],["29","San Agustín"],["30","San Jerónimo de Tunan"],["32","Saño"],["33","Sapallanga"],["34","Sicaya"],["35","Santo Domingo de Acobamba"],["36","Viques"]]],["02","Concepción",[["01","Concepción"],["02","Aco"],["03","Andamarca"],["04","Chambara"],["05","Cochas"],["06","Comas"],["07","Heroínas Toledo"],["08","Manzanares"],["09","Mariscal Castilla"],["10","Matahuasi"],["11","Mito"],["12","Nueve de Julio"],["13","Orcotuna"],["14","San José de Quero"],["15","Santa Rosa de Ocopa"]]],["03","Chanchamayo",[["01","Chanchamayo"],["02","Perene"],["03","Pichanaqui"],["04","San Luis de Shuaro"],["05","San Ramón"],["06","Vitoc"],["07","Sangani"]]],["04","Jauja",[["01","Jauja"],["02","Acolla"],["03","Apata"],["04","Ataura"],["05","Canchayllo"],["06","Curicaca"],["07","El Mantaro"],["08","Huamali"],["09","Huaripampa"],["10","Huertas"],["11","Janjaillo"],["12","Julcán"],["13","Leonor Ordóñez"],["14","Llocllapampa"],["15","Marco"],["16","Masma"],["17","Masma Chicche"],["18","Molinos"],["19","Monobamba"],["20","Muqui"],["21","Muquiyauyo"],["22","Paca"],["23","Paccha"],["24","Pancan"],["25","Parco"],["26","Pomacancha"],["27","Ricran"],["28","San Lorenzo"],["29","San Pedro de Chunan"],["30","Sausa"],["31","Sincos"],["32","Tunan Marca"],["33","Yauli"],["34","Yauyos"]]],["05","Junín",[["01","Junin"],["02","Carhuamayo"],["03","Ondores"],["04","Ulcumayo"]]],["06","Satipo",[["01","Satipo"],["02","Coviriali"],["03","Llaylla"],["04","Mazamari"],["05","Pampa Hermosa"],["06","Pangoa"],["07","Río Negro"],["08","Río Tambo"],["09","Vizcatán del Ene"]]],["07","Tarma",[["01","Tarma"],["02","Acobamba"],["03","Huaricolca"],["04","Huasahuasi"],["05","La Unión"],["06","Palca"],["07","Palcamayo"],["08","San Pedro de Cajas"],["09","Tapo"]]],["08","Yauli",[["01","La Oroya"],["02","Chacapalpa"],["03","Huay-Huay"],["04","Marcapomacocha"],["05","Morococha"],["06","Paccha"],["07","Santa Bárbara de Carhuacayan"],["08","Santa Rosa de Sacco"],["09","Suitucancha"],["10","Yauli"]]],["09","Chupaca",[["01","Chupaca"],["02","Ahuac"],["03","Chongos Bajo"],["04","Huachac"],["05","Huamancaca Chico"],["06","San Juan de Iscos"],["07","San Juan de Jarpa"],["08","Tres de Diciembre"],["09","Yanacancha"]]]]],["13","La Libertad",[["01","Trujillo",[["01","Trujillo"],["02","El Porvenir"],["03","Florencia de Mora"],["04","Huanchaco"],["05","La Esperanza"],["06","Laredo"],["07","Moche"],["08","Poroto"],["09","Salaverry"],["10","Simbal"],["11","Victor Larco Herrera"],["12","Alto Trujillo"]]],["02","Ascope",[["01","Ascope"],["02","Chicama"],["03","Chocope"],["04","Magdalena de Cao"],["05","Paijan"],["06","Rázuri"],["07","Santiago de Cao"],["08","Casa Grande"]]],["03","Bolívar",[["01","Bolívar"],["02","Bambamarca"],["03","Condormarca"],["04","Longotea"],["05","Uchumarca"],["06","Ucuncha"]]],["04","Chepén",[["01","Chepen"],["02","Pacanga"],["03","Pueblo Nuevo"]]],["05","Julcán",[["01","Julcan"],["02","Calamarca"],["03","Carabamba"],["04","Huaso"]]],["06","Otuzco",[["01","Otuzco"],["02","Agallpampa"],["04","Charat"],["05","Huaranchal"],["06","La Cuesta"],["08","Mache"],["10","Paranday"],["11","Salpo"],["13","Sinsicap"],["14","Usquil"]]],["07","Pacasmayo",[["01","San Pedro de Lloc"],["02","Guadalupe"],["03","Jequetepeque"],["04","Pacasmayo"],["05","San José"]]],["08","Pataz",[["01","Tayabamba"],["02","Buldibuyo"],["03","Chillia"],["04","Huancaspata"],["05","Huaylillas"],["06","Huayo"],["07","Ongon"],["08","Parcoy"],["09","Pataz"],["10","Pias"],["11","Santiago de Challas"],["12","Taurija"],["13","Urpay"]]],["09","Sánchez Carrión",[["01","Huamachuco"],["02","Chugay"],["03","Cochorco"],["04","Curgos"],["05","Marcabal"],["06","Sanagoran"],["07","Sarin"],["08","Sartimbamba"]]],["10","Santiago de Chuco",[["01","Santiago de Chuco"],["02","Angasmarca"],["03","Cachicadan"],["04","Mollebamba"],["05","Mollepata"],["06","Quiruvilca"],["07","Santa Cruz de Chuca"],["08","Sitabamba"]]],["11","Gran Chimú",[["01","Cascas"],["02","Lucma"],["03","Marmot"],["04","Sayapullo"]]],["12","Virú",[["01","Viru"],["02","Chao"],["03","Guadalupito"]]]]],["14","Lambayeque",[["01","Chiclayo",[["01","Chiclayo"],["02","Chongoyape"],["03","Eten"],["04","Eten Puerto"],["05","José Leonardo Ortiz"],["06","La Victoria"],["07","Lagunas"],["08","Monsefu"],["09","Nueva Arica"],["10","Oyotun"],["11","Picsi"],["12","Pimentel"],["13","Reque"],["14","Santa Rosa"],["15","Saña"],["16","Cayalti"],["17","Patapo"],["18","Pomalca"],["19","Pucala"],["20","Tuman"]]],["02","Ferreñafe",[["01","Ferreñafe"],["02","Cañaris"],["03","Incahuasi"],["04","Manuel Antonio Mesones Muro"],["05","Pitipo"],["06","Pueblo Nuevo"]]],["03","Lambayeque",[["01","Lambayeque"],["02","Chochope"],["03","Illimo"],["04","Jayanca"],["05","Mochumi"],["06","Morrope"],["07","Motupe"],["08","Olmos"],["09","Pacora"],["10","Salas"],["11","San José"],["12","Tucume"]]]]],["15","Lima",[["01","Lima",[["01","Lima"],["02","Ancón"],["03","Ate"],["04","Barranco"],["05","Breña"],["06","Carabayllo"],["07","Chaclacayo"],["08","Chorrillos"],["09","Cieneguilla"],["10","Comas"],["11","El Agustino"],["12","Independencia"],["13","Jesús María"],["14","La Molina"],["15","La Victoria"],["16","Lince"],["17","Los Olivos"],["18","Lurigancho"],["19","Lurin"],["20","Magdalena del Mar"],["21","Pueblo Libre"],["22","Miraflores"],["23","Pachacamac"],["24","Pucusana"],["25","Puente Piedra"],["26","Punta Hermosa"],["27","Punta Negra"],["28","Rímac"],["29","San Bartolo"],["30","San Borja"],["31","San Isidro"],["32","San Juan de Lurigancho"],["33","San Juan de Miraflores"],["34","San Luis"],["35","San Martín de Porres"],["36","San Miguel"],["37","Santa Anita"],["38","Santa María del Mar"],["39","Santa Rosa"],["40","Santiago de Surco"],["41","Surquillo"],["42","Villa El Salvador"],["43","Villa María del Triunfo"]]],["02","Barranca",[["01","Barranca"],["02","Paramonga"],["03","Pativilca"],["04","Supe"],["05","Supe Puerto"]]],["03","Cajatambo",[["01","Cajatambo"],["02","Copa"],["03","Gorgor"],["04","Huancapon"],["05","Manas"]]],["04","Canta",[["01","Canta"],["02","Arahuay"],["03","Huamantanga"],["04","Huaros"],["05","Lachaqui"],["06","San Buenaventura"],["07","Santa Rosa de Quives"]]],["05","Cañete",[["01","San Vicente de Cañete"],["02","Asia"],["03","Calango"],["04","Cerro Azul"],["05","Chilca"],["06","Coayllo"],["07","Imperial"],["08","Lunahuana"],["09","Mala"],["10","Nuevo Imperial"],["11","Pacaran"],["12","Quilmana"],["13","San Antonio"],["14","San Luis"],["15","Santa Cruz de Flores"],["16","Zúñiga"]]],["06","Huaral",[["01","Huaral"],["02","Atavillos Alto"],["03","Atavillos Bajo"],["04","Aucallama"],["05","Chancay"],["06","Ihuari"],["07","Lampian"],["08","Pacaraos"],["09","San Miguel de Acos"],["10","Santa Cruz de Andamarca"],["11","Sumbilca"],["12","Veintisiete de Noviembre"]]],["07","Huarochirí",[["01","Matucana"],["02","Antioquia"],["03","Callahuanca"],["04","Carampoma"],["05","Chicla"],["06","Cuenca"],["07","Huachupampa"],["08","Huanza"],["09","Huarochiri"],["10","Lahuaytambo"],["11","Langa"],["12","Laraos"],["13","Mariatana"],["14","Ricardo Palma"],["15","San Andrés de Tupicocha"],["16","San Antonio"],["17","San Bartolomé"],["18","San Damian"],["19","San Juan de Iris"],["20","San Juan de Tantaranche"],["21","San Lorenzo de Quinti"],["22","San Mateo"],["23","San Mateo de Otao"],["24","San Pedro de Casta"],["25","San Pedro de Huancayre"],["26","Sangallaya"],["27","Santa Cruz de Cocachacra"],["28","Santa Eulalia"],["29","Santiago de Anchucaya"],["30","Santiago de Tuna"],["31","Santo Domingo de Los Olleros"],["32","Surco"]]],["08","Huaura",[["01","Huacho"],["02","Ambar"],["03","Caleta de Carquin"],["04","Checras"],["05","Hualmay"],["06","Huaura"],["07","Leoncio Prado"],["08","Paccho"],["09","Santa Leonor"],["10","Santa María"],["11","Sayan"],["12","Vegueta"]]],["09","Oyón",[["01","Oyon"],["02","Andajes"],["03","Caujul"],["04","Cochamarca"],["05","Navan"],["06","Pachangara"]]],["10","Yauyos",[["01","Yauyos"],["02","Alis"],["03","Allauca"],["04","Ayaviri"],["05","Azángaro"],["06","Cacra"],["07","Carania"],["08","Catahuasi"],["09","Chocos"],["10","Cochas"],["11","Colonia"],["12","Hongos"],["13","Huampara"],["14","Huancaya"],["15","Huangascar"],["16","Huantan"],["17","Huañec"],["18","Laraos"],["19","Lincha"],["20","Madean"],["21","Miraflores"],["22","Omas"],["23","Putinza"],["24","Quinches"],["25","Quinocay"],["26","San Joaquín"],["27","San Pedro de Pilas"],["28","Tanta"],["29","Tauripampa"],["30","Tomas"],["31","Tupe"],["32","Viñac"],["33","Vitis"]]]]],["16","Loreto",[["01","Maynas",[["01","Iquitos"],["02","Alto Nanay"],["03","Fernando Lores"],["04","Indiana"],["05","Las Amazonas"],["06","Mazan"],["07","Napo"],["08","Punchana"],["10","Torres Causana"],["12","Belén"],["13","San Juan Bautista"]]],["02","Alto Amazonas",[["01","Yurimaguas"],["02","Balsapuerto"],["05","Jeberos"],["06","Lagunas"],["10","Santa Cruz"],["11","Teniente Cesar López Rojas"]]],["03","Loreto",[["01","Nauta"],["02","Parinari"],["03","Tigre"],["04","Trompeteros"],["05","Urarinas"]]],["04","Mariscal Ramón Castilla",[["01","Ramón Castilla"],["02","Pebas"],["03","Yavari"],["04","San Pablo"],["05","Santa Rosa de Loreto"]]],["05","Requena",[["01","Requena"],["02","Alto Tapiche"],["03","Capelo"],["04","Emilio San Martín"],["05","Maquia"],["06","Puinahua"],["07","Saquena"],["08","Soplin"],["09","Tapiche"],["10","Jenaro Herrera"],["11","Yaquerana"]]],["06","Ucayali",[["01","Contamana"],["02","Inahuaya"],["03","Padre Márquez"],["04","Pampa Hermosa"],["05","Sarayacu"],["06","Vargas Guerra"]]],["07","Datem del Marañón",[["01","Barranca"],["02","Cahuapanas"],["03","Manseriche"],["04","Morona"],["05","Pastaza"],["06","Andoas"]]],["08","Putumayo",[["01","Putumayo"],["02","Rosa Panduro"],["03","Teniente Manuel Clavero"],["04","Yaguas"]]]]],["17","Madre de Dios",[["01","Tambopata",[["01","Tambopata"],["02","Inambari"],["03","Las Piedras"],["04","Laberinto"]]],["02","Manu",[["01","Manu"],["02","Fitzcarrald"],["03","Madre de Dios"],["04","Huepetuhe"]]],["03","Tahuamanu",[["01","Iñapari"],["02","Iberia"],["03","Tahuamanu"]]]]],["18","Moquegua",[["01","Mariscal Nieto",[["01","Moquegua"],["02","Carumas"],["03","Cuchumbaya"],["04","Samegua"],["05","San Cristóbal"],["06","Torata"],["07","San Antonio"]]],["02","General Sánchez Cerro",[["01","Omate"],["02","Chojata"],["03","Coalaque"],["04","Ichuña"],["05","La Capilla"],["06","Lloque"],["07","Matalaque"],["08","Puquina"],["09","Quinistaquillas"],["10","Ubinas"],["11","Yunga"]]],["03","Ilo",[["01","Ilo"],["02","El Algarrobal"],["03","Pacocha"]]]]],["19","Pasco",[["01","Pasco",[["01","Chaupimarca"],["02","Huachon"],["03","Huariaca"],["04","Huayllay"],["05","Ninacaca"],["06","Pallanchacra"],["07","Paucartambo"],["08","San Francisco de Asís de Yarusyacan"],["09","Simon Bolívar"],["10","Ticlacayan"],["11","Tinyahuarco"],["12","Vicco"],["13","Yanacancha"]]],["02","Daniel Alcides Carrión",[["01","Yanahuanca"],["02","Chacayan"],["03","Goyllarisquizga"],["04","Paucar"],["05","San Pedro de Pillao"],["06","Santa Ana de Tusi"],["07","Tapuc"],["08","Vilcabamba"]]],["03","Oxapampa",[["01","Oxapampa"],["02","Chontabamba"],["03","Huancabamba"],["04","Palcazu"],["05","Pozuzo"],["06","Puerto Bermúdez"],["07","Villa Rica"],["08","Constitución"]]]]],["20","Piura",[["01","Piura",[["01","Piura"],["04","Castilla"],["05","Catacaos"],["07","Cura Mori"],["08","El Tallan"],["09","La Arena"],["10","La Unión"],["11","Las Lomas"],["14","Tambo Grande"],["15","Veintiseis de Octubre"]]],["02","Ayabaca",[["01","Ayabaca"],["02","Frias"],["03","Jilili"],["04","Lagunas"],["05","Montero"],["06","Pacaipampa"],["07","Paimas"],["08","Sapillica"],["09","Sicchez"],["10","Suyo"]]],["03","Huancabamba",[["01","Huancabamba"],["02","Canchaque"],["03","El Carmen de la Frontera"],["04","Huarmaca"],["05","Lalaquiz"],["06","San Miguel de El Faique"],["07","Sondor"],["08","Sondorillo"]]],["04","Morropón",[["01","Chulucanas"],["02","Buenos Aires"],["03","Chalaco"],["04","La Matanza"],["05","Morropon"],["06","Salitral"],["07","San Juan de Bigote"],["08","Santa Catalina de Mossa"],["09","Santo Domingo"],["10","Yamango"]]],["05","Paita",[["01","Paita"],["02","Amotape"],["03","Arenal"],["04","Colan"],["05","La Huaca"],["06","Tamarindo"],["07","Vichayal"]]],["06","Sullana",[["01","Sullana"],["02","Bellavista"],["03","Ignacio Escudero"],["04","Lancones"],["05","Marcavelica"],["06","Miguel Checa"],["07","Querecotillo"],["08","Salitral"]]],["07","Talara",[["01","Pariñas"],["02","El Alto"],["03","La Brea"],["04","Lobitos"],["05","Los Organos"],["06","Mancora"]]],["08","Sechura",[["01","Sechura"],["02","Bellavista de la Unión"],["03","Bernal"],["04","Cristo Nos Valga"],["05","Vice"],["06","Rinconada Llicuar"]]]]],["21","Puno",[["01","Puno",[["01","Puno"],["02","Acora"],["03","Amantani"],["04","Atuncolla"],["05","Capachica"],["06","Chucuito"],["07","Coata"],["08","Huata"],["09","Mañazo"],["10","Paucarcolla"],["11","Pichacani"],["12","Plateria"],["13","San Antonio"],["14","Tiquillaca"],["15","Vilque"]]],["02","Azángaro",[["01","Azángaro"],["02","Achaya"],["03","Arapa"],["04","Asillo"],["05","Caminaca"],["06","Chupa"],["07","José Domingo Choquehuanca"],["08","Muñani"],["09","Potoni"],["10","Saman"],["11","San Anton"],["12","San José"],["13","San Juan de Salinas"],["14","Santiago de Pupuja"],["15","Tirapata"]]],["03","Carabaya",[["01","Macusani"],["02","Ajoyani"],["03","Ayapata"],["04","Coasa"],["05","Corani"],["06","Crucero"],["07","Ituata"],["08","Ollachea"],["09","San Gaban"],["10","Usicayos"]]],["04","Chucuito",[["01","Juli"],["02","Desaguadero"],["03","Huacullani"],["04","Kelluyo"],["05","Pisacoma"],["06","Pomata"],["07","Zepita"]]],["05","El Collao",[["01","Ilave"],["02","Capazo"],["03","Pilcuyo"],["04","Santa Rosa"],["05","Conduriri"]]],["06","Huancané",[["01","Huancane"],["02","Cojata"],["03","Huatasani"],["04","Inchupalla"],["05","Pusi"],["06","Rosaspata"],["07","Taraco"],["08","Vilque Chico"]]],["07","Lampa",[["01","Lampa"],["02","Cabanilla"],["03","Calapuja"],["04","Nicasio"],["05","Ocuviri"],["06","Palca"],["07","Paratia"],["08","Pucara"],["09","Santa Lucia"],["10","Vilavila"]]],["08","Melgar",[["01","Ayaviri"],["02","Antauta"],["03","Cupi"],["04","Llalli"],["05","Macari"],["06","Nuñoa"],["07","Orurillo"],["08","Santa Rosa"],["09","Umachiri"]]],["09","Moho",[["01","Moho"],["02","Conima"],["03","Huayrapata"],["04","Tilali"]]],["10","San Antonio de Putina",[["01","Putina"],["02","Ananea"],["03","Pedro Vilca Apaza"],["04","Quilcapuncu"],["05","Sina"]]],["11","San Román",[["01","Juliaca"],["02","Cabana"],["03","Cabanillas"],["04","Caracoto"],["05","San Miguel"]]],["12","Sandia",[["01","Sandia"],["02","Cuyocuyo"],["03","Limbani"],["04","Patambuco"],["05","Phara"],["06","Quiaca"],["07","San Juan del Oro"],["08","Yanahuaya"],["09","Alto Inambari"],["10","San Pedro de Putina Punco"]]],["13","Yunguyo",[["01","Yunguyo"],["02","Anapia"],["03","Copani"],["04","Cuturapi"],["05","Ollaraya"],["06","Tinicachi"],["07","Unicachi"]]]]],["22","San Martín",[["01","Moyobamba",[["01","Moyobamba"],["02","Calzada"],["03","Habana"],["04","Jepelacio"],["05","Soritor"],["06","Yantalo"]]],["02","Bellavista",[["01","Bellavista"],["02","Alto Biavo"],["03","Bajo Biavo"],["04","Huallaga"],["05","San Pablo"],["06","San Rafael"]]],["03","El Dorado",[["01","San José de Sisa"],["02","Agua Blanca"],["03","San Martín"],["04","Santa Rosa"],["05","Shatoja"]]],["04","Huallaga",[["01","Saposoa"],["02","Alto Saposoa"],["03","El Eslabón"],["04","Piscoyacu"],["05","Sacanche"],["06","Tingo de Saposoa"]]],["05","Lamas",[["01","Lamas"],["02","Alonso de Alvarado"],["03","Barranquita"],["04","Caynarachi"],["05","Cuñumbuqui"],["06","Pinto Recodo"],["07","Rumisapa"],["08","San Roque de Cumbaza"],["09","Shanao"],["10","Tabalosos"],["11","Zapatero"]]],["06","Mariscal Cáceres",[["01","Juanjuí"],["02","Campanilla"],["03","Huicungo"],["04","Pachiza"],["05","Pajarillo"]]],["07","Picota",[["01","Picota"],["02","Buenos Aires"],["03","Caspisapa"],["04","Pilluana"],["05","Pucacaca"],["06","San Cristóbal"],["07","San Hilarión"],["08","Shamboyacu"],["09","Tingo de Ponasa"],["10","Tres Unidos"]]],["08","Rioja",[["01","Rioja"],["02","Awajun"],["03","Elías Soplin Vargas"],["04","Nueva Cajamarca"],["05","Pardo Miguel"],["06","Posic"],["07","San Fernando"],["08","Yorongos"],["09","Yuracyacu"]]],["09","San Martín",[["01","Tarapoto"],["02","Alberto Leveau"],["03","Cacatachi"],["04","Chazuta"],["05","Chipurana"],["06","El Porvenir"],["07","Huimbayoc"],["08","Juan Guerra"],["09","La Banda de Shilcayo"],["10","Morales"],["11","Papaplaya"],["12","San Antonio"],["13","Sauce"],["14","Shapaja"]]],["10","Tocache",[["01","Tocache"],["02","Nuevo Progreso"],["03","Polvora"],["04","Shunte"],["05","Uchiza"],["06","Santa Lucia"]]]]],["23","Tacna",[["01","Tacna",[["01","Tacna"],["02","Alto de la Alianza"],["03","Calana"],["04","Ciudad Nueva"],["05","Inclan"],["06","Pachia"],["07","Palca"],["08","Pocollay"],["09","Sama"],["10","Coronel Gregorio Albarracín Lanchipa"],["11","La Yarada los Palos"]]],["02","Candarave",[["01","Candarave"],["02","Cairani"],["03","Camilaca"],["04","Curibaya"],["05","Huanuara"],["06","Quilahuani"]]],["03","Jorge Basadre",[["01","Locumba"],["02","Ilabaya"],["03","Ite"]]],["04","Tarata",[["01","Tarata"],["02","Héroes Albarracín"],["03","Estique"],["04","Estique-Pampa"],["05","Sitajara"],["06","Susapaya"],["07","Tarucachi"],["08","Ticaco"]]]]],["24","Tumbes",[["01","Tumbes",[["01","Tumbes"],["02","Corrales"],["03","La Cruz"],["04","Pampas de Hospital"],["05","San Jacinto"],["06","San Juan de la Virgen"]]],["02","Contralmirante Villar",[["01","Zorritos"],["02","Casitas"],["03","Canoas de Punta Sal"]]],["03","Zarumilla",[["01","Zarumilla"],["02","Aguas Verdes"],["03","Matapalo"],["04","Papayal"]]]]],["25","Ucayali",[["01","Coronel Portillo",[["01","Calleria"],["02","Campoverde"],["03","Iparia"],["04","Masisea"],["05","Yarinacocha"],["06","Nueva Requena"],["07","Manantay"]]],["02","Atalaya",[["01","Raymondi"],["02","Sepahua"],["03","Tahuania"],["04","Yurua"]]],["03","Padre Abad",[["01","Padre Abad"],["02","Irazola"],["03","Curimana"],["04","Neshuya"],["05","Alexander Von Humboldt"],["06","Huipoca"],["07","Boqueron"]]],["04","Purús",[["01","Purus"]]]]]];
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const r2 = n => Math.round((+n + Number.EPSILON) * 100) / 100;
@@ -149,29 +168,30 @@ function fechaHora(iso) { const d = new Date(iso); return d.toLocaleDateString('
 
 /* ---------- datos de ejemplo ---------- */
 function seed() {
+  // nombre, familia, subfamilia, tipo, precio, ícono, stock, tipo de lente, tratamientos, descripción
   const P = [
-    ['Montura de acetato clásica','Monturas','producto',189,'👓',15,'Acetato de alta resistencia, diseño clásico unisex. Incluye estuche y paño. Puedes agregarle lunas con tu medida.'],
-    ['Montura metálica ultraliviana','Monturas','producto',229,'👓',12,'Titanio y acero inoxidable, plaquetas ajustables y bisagras flexibles para uso diario.'],
-    ['Montura al aire (sin aro)','Monturas','producto',289,'👓',8,'Diseño minimalista sin aro, muy liviana y elegante. Ideal con lunas antirreflejo.'],
-    ['Montura infantil flexible','Monturas','producto',149,'👓',14,'Material flexible y resistente a golpes, con varillas ajustables para niños de 4 a 12 años.'],
-    ['Montura deportiva','Monturas','producto',199,'🥽',10,'Ajuste envolvente y antideslizante para deporte, con opción de lunas graduadas.'],
-    ['Lentes de sol polarizados','Lentes de sol','producto',249,'🕶️',12,'Polarizados con protección UV400. Reducen los reflejos al manejar o en la playa.'],
-    ['Lentes de sol tipo aviador','Lentes de sol','producto',219,'🕶️',10,'Estilo aviador metálico con protección UV400 total.'],
-    ['Lentes de sol graduados','Lentes de sol','producto',399,'🕶️',6,'Lentes de sol con tu medida y protección UV400. Envíanos tu receta por WhatsApp.'],
-    ['Lunas monofocales antirreflejo','Lunas','producto',159,'🔍',30,'Par de lunas con tu medida y tratamiento antirreflejo. Envíanos tu receta o agenda tu examen visual.'],
-    ['Lunas con filtro de luz azul','Lunas','producto',199,'💻',30,'Par de lunas antirreflejo con filtro de luz azul. Ideales para computadora y celular.'],
-    ['Lunas fotocromáticas','Lunas','producto',289,'🌗',20,'Se oscurecen con el sol y se aclaran en interiores. Par con tu medida.'],
-    ['Lunas progresivas','Lunas','producto',590,'👁️',15,'Visión de lejos, intermedia y de cerca en una sola luna. Par con tu medida.'],
-    ['Lentes de contacto mensuales (caja x6)','Lentes de contacto','producto',120,'👁️',25,'Lentes blandos de reemplazo mensual. Indica tu medida al hacer el pedido.'],
-    ['Lentes de contacto de color (par)','Lentes de contacto','producto',95,'🎨',20,'Varios tonos disponibles, con o sin medida. Uso hasta 3 meses.'],
-    ['Solución multipropósito 360 ml','Lentes de contacto','producto',39,'🧴',40,'Limpia, desinfecta y conserva tus lentes de contacto. Incluye estuche.'],
-    ['Estuche rígido + paño de microfibra','Accesorios','producto',25,'💼',50,'Protege tus lentes de golpes y rayones.'],
-    ['Examen visual computarizado','Servicios','servicio',40,'🩺',null,'Medición computarizada y evaluación con optometrista. Reserva tu cita y elige la fecha.'],
-    ['Adaptación de lentes de contacto','Servicios','servicio',60,'🧑‍⚕️',null,'Evaluación, prueba y enseñanza de colocación y cuidado de lentes de contacto.'],
-    ['Ajuste y mantenimiento de lentes','Servicios','servicio',20,'🔧',null,'Ajuste de varillas y plaquetas, limpieza ultrasónica y cambio de tornillos.'],
-    ['Reparación de monturas','Servicios','servicio',45,'🛠️',null,'Soldadura, cambio de bisagras y repuestos. Te confirmamos el diagnóstico por WhatsApp.']
+    ['Montura de acetato clásica','Monturas','Acetato','producto',189,'👓',15,'','','Acetato de alta resistencia, diseño clásico unisex. Incluye estuche y paño. Puedes agregarle lunas con tu medida.'],
+    ['Montura metálica ultraliviana','Monturas','Metálicas','producto',229,'👓',12,'','','Titanio y acero inoxidable, plaquetas ajustables y bisagras flexibles para uso diario.'],
+    ['Montura al aire (sin aro)','Monturas','Al aire','producto',289,'👓',8,'','','Diseño minimalista sin aro, muy liviana y elegante. Ideal con lunas antirreflejo.'],
+    ['Montura infantil flexible','Monturas','Infantiles','producto',149,'👓',14,'','','Material flexible y resistente a golpes, con varillas ajustables para niños de 4 a 12 años.'],
+    ['Montura deportiva','Monturas','Deportivas','producto',199,'🥽',10,'','','Ajuste envolvente y antideslizante para deporte, con opción de lunas graduadas.'],
+    ['Lentes de sol polarizados','Lentes de sol','Polarizados','producto',249,'🕶️',12,'Sin medida','Polarizado, Protección UV400','Reducen los reflejos al manejar o en la playa.'],
+    ['Lentes de sol tipo aviador','Lentes de sol','Moda','producto',219,'🕶️',10,'Sin medida','Protección UV400','Estilo aviador metálico con protección UV400 total.'],
+    ['Lentes de sol graduados','Lentes de sol','Graduados','producto',399,'🕶️',6,'Monofocal','Polarizado, Protección UV400','Lentes de sol con tu medida. Envíanos tu receta por WhatsApp.'],
+    ['Lunas monofocales antirreflejo','Lunas oftálmicas','Monofocales','producto',159,'🔍',30,'Monofocal','Antirreflejo, Endurecido','Par de lunas con tu medida. Envíanos tu receta o agenda tu examen visual.'],
+    ['Lunas con filtro de luz azul','Lunas oftálmicas','Monofocales','producto',199,'💻',30,'Monofocal','Filtro luz azul, Antirreflejo','Par de lunas con filtro de luz azul. Ideales para computadora y celular.'],
+    ['Lunas fotocromáticas','Lunas oftálmicas','Fotocromáticas','producto',289,'🌗',20,'Monofocal','Fotocromático, Antirreflejo, Protección UV400','Se oscurecen con el sol y se aclaran en interiores. Par con tu medida.'],
+    ['Lunas progresivas','Lunas oftálmicas','Multifocales','producto',590,'👁️',15,'Progresivo','Antirreflejo, Endurecido','Visión de lejos, intermedia y de cerca en una sola luna. Par con tu medida.'],
+    ['Lentes de contacto mensuales (caja x6)','Lentes de contacto','Mensuales','producto',120,'👁️',25,'Lente de contacto','','Lentes blandos de reemplazo mensual. Indica tu medida al hacer el pedido.'],
+    ['Lentes de contacto de color (par)','Lentes de contacto','De color','producto',95,'🎨',20,'Lente de contacto','','Varios tonos disponibles, con o sin medida. Uso hasta 3 meses.'],
+    ['Solución multipropósito 360 ml','Lentes de contacto','Cuidado','producto',39,'🧴',40,'','','Limpia, desinfecta y conserva tus lentes de contacto. Incluye estuche.'],
+    ['Estuche rígido + paño de microfibra','Accesorios','Estuches','producto',25,'💼',50,'','','Protege tus lentes de golpes y rayones.'],
+    ['Examen visual computarizado','Servicios','Optometría','servicio',40,'🩺',null,'','','Medición computarizada y evaluación con optometrista. Reserva tu cita y elige la fecha.'],
+    ['Adaptación de lentes de contacto','Servicios','Optometría','servicio',60,'🧑‍⚕️',null,'Lente de contacto','','Evaluación, prueba y enseñanza de colocación y cuidado de lentes de contacto.'],
+    ['Ajuste y mantenimiento de lentes','Servicios','Taller','servicio',20,'🔧',null,'','','Ajuste de varillas y plaquetas, limpieza ultrasónica y cambio de tornillos.'],
+    ['Reparación de monturas','Servicios','Taller','servicio',45,'🛠️',null,'','','Soldadura, cambio de bisagras y repuestos. Te confirmamos el diagnóstico por WhatsApp.']
   ];
-  const productos = P.map((a, i) => ({id: 'p' + (i + 1), nombre: a[0], categoria: a[1], tipo: a[2], precio: a[3], emoji: a[4], stock: a[5], descripcion: a[6], img: '', activo: true}));
+  const productos = P.map((a, i) => ({id: 'p' + (i + 1), codigo: 'OC-' + String(i + 1).padStart(3, '0'), nombre: a[0], familia: a[1], subfamilia: a[2], categoria: a[1], tipo: a[3], precio: a[4], emoji: a[5], stock: a[6], tipoLente: a[7], tratamientos: a[8], descripcion: a[9], img: '', activo: true}));
   const R = [
     ['Montura clásica -20%',1,20,30,'Tu montura de acetato con 20% de descuento.'],
     ['Verano polarizado',6,25,45,'Lentes de sol polarizados con 25% de descuento.'],
@@ -185,15 +205,40 @@ function seed() {
     ['Solución -25%',15,25,30,'Solución multipropósito con 25% de descuento.']
   ];
   const promos = R.map((a, i) => ({id: 'pr' + (i + 1), titulo: a[0], productoId: 'p' + a[1], descuento: a[2], inicio: isoDia(-10), fin: isoDia(a[3]), descripcion: a[4], activa: true}));
-  return {version: 1, adminPin: '1234', empresas: [empresaBase({id: 'e1', slug: 'opticachacarilla', codigo: 'OC', nombre: 'Óptica Chacarilla', eslogan: 'Cuidamos tu visión con estilo', color: '#1E3A8A',
+  const medios = [
+    medioBase({id: 'm1', nombre: 'Yape', tipo: 'billetera', titular: 'Óptica Chacarilla'}),
+    medioBase({id: 'm2', nombre: 'Plin', tipo: 'billetera', titular: 'Óptica Chacarilla'}),
+    medioBase({id: 'm3', nombre: 'Transferencia bancaria', tipo: 'transferencia', banco: 'BCP', tipoCuenta: 'Cuenta corriente soles', titular: 'Óptica Chacarilla', nota: 'Envía la constancia por WhatsApp para confirmar tu pedido.'}),
+    medioBase({id: 'm4', nombre: 'Tarjeta (link de pago)', tipo: 'otro', nota: 'Te enviamos un link de pago seguro por WhatsApp.'}),
+    medioBase({id: 'm5', nombre: 'Contra entrega', tipo: 'otro', nota: 'Pagas en efectivo, Yape o Plin al recibir tu pedido.'})
+  ];
+  return {version: 2, adminPin: '1234', empresas: [normalizar(empresaBase({id: 'e1', slug: 'opticachacarilla', codigo: 'OC', nombre: 'Óptica Chacarilla', eslogan: 'Cuidamos tu visión con estilo', color: '#1E3A8A',
     whatsapp: '51999999999', telefono: '', email: 'ventas@opticachacarilla.com', direccion: 'Chacarilla, Santiago de Surco, Lima', horario: 'Lun a Sáb de 10:00 a 20:00',
-    redes: {facebook: 'opticachacarilla', instagram: 'opticachacarilla', tiktok: 'opticachacarilla', youtube: '', x: '', linkedin: ''}, envio: {costo: 10, gratisDesde: 250}, productos, promos})], pedidos: []};
+    redes: {facebook: 'opticachacarilla', instagram: 'opticachacarilla', tiktok: 'opticachacarilla', youtube: '', x: '', linkedin: ''}, envio: {costo: 10, gratisDesde: 250}, medios, productos, promos}))], pedidos: []};
 }
 function empresaBase(o = {}) {
   return Object.assign({id: 'e' + uid(), slug: '', codigo: 'EM', nombre: 'Nueva empresa', eslogan: '', logo: '', color: '#1D4ED8', moneda: 'S/', whatsapp: '', telefono: '', email: '', direccion: '', horario: '',
-    redes: {facebook: '', instagram: '', tiktok: '', youtube: '', x: '', linkedin: ''}, envio: {costo: 10, gratisDesde: 300}, pagos: PAGOS.slice(), productos: [], promos: []}, o);
+    redes: {facebook: '', instagram: '', tiktok: '', youtube: '', x: '', linkedin: ''}, envio: {costo: 10, gratisDesde: 300}, medios: mediosBase(), pagos: [], productos: [], promos: []}, o);
 }
-
+function medioBase(o = {}) { return Object.assign({id: 'm' + uid() + Math.random().toString(36).slice(2, 5), nombre: '', tipo: 'otro', numero: '', titular: '', banco: '', tipoCuenta: '', cuenta: '', cci: '', nota: '', activo: true}, o); }
+function mediosBase() { return [medioBase({nombre: 'Yape', tipo: 'billetera'}), medioBase({nombre: 'Plin', tipo: 'billetera'}), medioBase({nombre: 'Transferencia bancaria', tipo: 'transferencia'}), medioBase({nombre: 'Contra entrega', tipo: 'otro', nota: 'Pagas al recibir tu pedido.'})]; }
+function sincronizarPagos(e) {
+  if (!e.medios.some(m => m.activo) && e.medios[0]) e.medios[0].activo = true;
+  e.pagos = e.medios.filter(m => m.activo).map(m => m.nombre);
+}
+/* Completa campos nuevos en datos guardados con versiones anteriores */
+function normalizar(e) {
+  e.productos = e.productos || []; e.promos = e.promos || [];
+  e.productos.forEach((p, i) => {
+    p.familia = p.familia || p.categoria || 'General'; p.categoria = p.familia;
+    p.subfamilia = p.subfamilia || ''; p.tipoLente = p.tipoLente || ''; p.tratamientos = p.tratamientos || '';
+    p.codigo = p.codigo || ((e.codigo || 'PR') + '-' + String(i + 1).padStart(3, '0'));
+  });
+  if (!Array.isArray(e.medios) || !e.medios.length)
+    e.medios = (e.pagos && e.pagos.length ? e.pagos : PAGOS).map(n => medioBase({nombre: n, tipo: /yape|plin/i.test(n) ? 'billetera' : /transfer/i.test(n) ? 'transferencia' : 'otro'}));
+  sincronizarPagos(e);
+  return e;
+}
 /* ---------- reglas de precio (iguales en api.php) ---------- */
 function promoActiva(p) { const h = hoy(); return !!p.activa && (!p.inicio || p.inicio <= h) && (!p.fin || p.fin >= h); }
 function promoDe(emp, pid) { return emp.promos.filter(p => p.productoId === pid && promoActiva(p)).sort((a, b) => b.descuento - a.descuento)[0] || null; }
@@ -217,7 +262,7 @@ function calcular(emp, items, entrega) {
 let DB, EMP, MODE = 'local';
 const STOCK_EDIT = new Set();
 const ADMIN = {on: false, pin: '', tab: 'resumen', pedidos: []};
-const UI = {cat: 'Todas', q: '', tipo: 'todos'};
+const UI = {q: '', tipo: 'todos', fam: '', sub: '', lente: '', trat: ''};
 
 async function api(action, body, extra = '') {
   const r = await fetch('api.php?action=' + action + extra, {method: body ? 'POST' : 'GET', headers: {'Content-Type': 'application/json'}, body: body ? JSON.stringify(body) : undefined, cache: 'no-store'});
@@ -246,10 +291,11 @@ async function guardarDB() {
   if (MODE === 'api') {
     // Conserva el stock real del servidor (pudo bajar por ventas) salvo en productos cuyo stock editó el admin
     try { const fresh = await api('load'); (fresh.empresas || []).forEach(fe => { const e = DB.empresas.find(x => x.id === fe.id); if (e) fe.productos.forEach(fp => { const p = e.productos.find(x => x.id === fp.id); if (p && p.tipo === 'producto' && !STOCK_EDIT.has(p.id)) p.stock = fp.stock; }); }); } catch (e) {}
+    DB.empresas.forEach(sincronizarPagos);
     const copia = Object.assign({}, DB); delete copia.pedidos; delete copia.adminPin;
     await api('save', {pin: ADMIN.pin, db: copia}); STOCK_EDIT.clear();
   }
-  else if (!LS.set('wl_db', DB)) toast('Aviso: el navegador no permite guardar; los cambios duran hasta recargar.');
+  else if (DB.empresas.forEach(sincronizarPagos), !LS.set('wl_db', DB)) toast('Aviso: el navegador no permite guardar; los cambios duran hasta recargar.');
 }
 function elegirEmpresa() {
   const q = new URLSearchParams(location.search).get('e');
@@ -305,16 +351,50 @@ function socialHTML(conWa = true) {
   return `<div class="social">${items.map(([r, u]) => `<a class="s-${r}" href="${esc(u)}" target="_blank" rel="noopener" aria-label="${NOMBRE_RED[r]}" title="${NOMBRE_RED[r]}"><svg viewBox="0 0 24 24" aria-hidden="true">${ICON[r]}</svg></a>`).join('')}</div>`;
 }
 const waLink = (txt, num = EMP.whatsapp) => 'https://wa.me/' + String(num).replace(/\D/g, '') + '?text=' + encodeURIComponent(txt);
-function logoHTML(e, xl = false) { return `<span class="logo${xl ? ' xl' : ''}">${e.logo ? `<img src="${e.logo}" alt="Logo ${esc(e.nombre)}">` : esc((e.codigo || e.nombre || '?').slice(0, 2).toUpperCase())}</span>`; }
-const imgHTML = p => p.img ? `<img src="${p.img}" alt="${esc(p.nombre)}" loading="lazy">` : `<span aria-hidden="true">${esc(p.emoji || '📦')}</span>`;
+function logoHTML(e, xl = false) { return `<span class="logo${xl ? ' xl' : ''}">${e.logo ? `<img src="${esc(e.logo)}" alt="Logo ${esc(e.nombre)}">` : esc((e.codigo || e.nombre || '?').slice(0, 2).toUpperCase())}</span>`; }
+const imgHTML = p => p.img ? `<img src="${esc(p.img)}" alt="${esc(p.nombre)}" loading="lazy">` : `<span aria-hidden="true">${esc(p.emoji || '📦')}</span>`;
 
 /* ---------- utilidades UI ---------- */
 let tt;
 function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 2600); }
-function modal(html) { $('#modal').innerHTML = html ? `<div class="modal-bg" data-act="closeModalBg"><div class="modal" role="dialog" aria-modal="true">${html}</div></div>` : ''; }
+function modal(html, cls = '') { $('#modal').innerHTML = html ? `<div class="modal-bg ${cls}" data-act="closeModalBg"><div class="modal" role="dialog" aria-modal="true">${html}</div></div>` : ''; }
 function confirmar(msg, ok) { modal(`<h3>Confirmar</h3><p>${esc(msg)}</p><div class="row"><button class="btn ghost full" data-act="closeModal">Cancelar</button><button class="btn full" id="okc">Sí, continuar</button></div>`); $('#okc').onclick = () => { modal(''); ok(); }; }
 async function copiar(txt) { try { await navigator.clipboard.writeText(txt); toast('Copiado ✓'); } catch (e) { toast('No se pudo copiar automáticamente; selecciona el texto.'); } }
 const productosVisibles = () => EMP.productos.filter(p => p.activo);
+const tratamientosDe = p => String(p.tratamientos || '').split(/[,;/|]+/).map(x => x.trim()).filter(Boolean);
+const familias = () => [...new Set(productosVisibles().map(p => p.familia))];
+const subfamilias = fam => [...new Set(productosVisibles().filter(p => !fam || p.familia === fam).map(p => p.subfamilia).filter(Boolean))];
+const tiposLente = () => [...new Set(productosVisibles().map(p => p.tipoLente).filter(Boolean))].sort();
+const tratamientosTodos = () => [...new Set(productosVisibles().flatMap(tratamientosDe))].sort();
+const textoBusqueda = p => norm([p.nombre, p.codigo, p.familia, p.subfamilia, p.tipoLente, p.tratamientos, p.descripcion].join(' '));
+const coincide = (p, q) => !q || q.split(/\s+/).every(w => textoBusqueda(p).includes(w));
+function opciones(lista, sel, todos) { return `<option value="">${esc(todos)}</option>` + lista.map(v => `<option value="${esc(v)}" ${v === sel ? 'selected' : ''}>${esc(v)}</option>`).join(''); }
+const famTxt = p => esc(p.familia) + (p.subfamilia ? ' › ' + esc(p.subfamilia) : '');
+/* ubigeo */
+const ubDep = d => UBIGEO.find(x => x[0] === d);
+const ubProv = (d, p) => ubDep(d)?.[2].find(x => x[0] === p);
+const ubTxt = u => u ? [u.distrito, u.provincia, u.departamento].filter(Boolean).join(', ') : '';
+function ubOpts(lista, sel, ph) { return `<option value="">${ph}</option>` + lista.map(x => `<option value="${x[0]}" ${x[0] === sel ? 'selected' : ''}>${esc(x[1])}</option>`).join(''); }
+function ubigeoHTML(d, p, t) {
+  return `<label class="f">Ubigeo (departamento, provincia y distrito) *</label><div class="ubi">
+    <div><select class="in" id="ub-dep" name="dep" data-change="ubDep" aria-label="Departamento">${ubOpts(UBIGEO.map(x => [x[0], x[1]]), d, 'Departamento')}</select><div class="err">Elige el departamento.</div></div>
+    <div><select class="in" id="ub-prov" name="prov" data-change="ubProv" aria-label="Provincia" ${d ? '' : 'disabled'}>${ubOpts(d && ubDep(d) ? ubDep(d)[2] : [], p, 'Provincia')}</select><div class="err">Elige la provincia.</div></div>
+    <div><select class="in" id="ub-dist" name="dist" aria-label="Distrito" ${p ? '' : 'disabled'}>${ubOpts(p && ubProv(d, p) ? ubProv(d, p)[2] : [], t, 'Distrito')}</select><div class="err">Elige el distrito.</div></div></div>`;
+}
+/* medios de pago */
+const medioPorNombre = n => (EMP.medios || []).find(m => m.nombre === n);
+const TIPO_MEDIO = {billetera: 'Billetera digital', transferencia: 'Transferencia bancaria', otro: 'Otro'};
+function detalleMedioHTML(m) {
+  if (!m) return '';
+  const cp = (k, v) => v ? `<div class="row between small" style="padding:4px 0"><span class="muted">${k}</span><span><b>${esc(v)}</b> <button type="button" class="btn sm ghost" style="padding:3px 8px" data-act="copyTxt" data-t="${esc(v)}">Copiar</button></span></div>` : '';
+  const tx = (k, v) => v ? `<div class="row between small" style="padding:4px 0"><span class="muted">${k}</span><b>${esc(v)}</b></div>` : '';
+  const L = [];
+  if (m.tipo === 'billetera') L.push(cp('Número', m.numero), tx('Titular', m.titular));
+  if (m.tipo === 'transferencia') L.push(tx('Banco', m.banco), tx('Tipo de cuenta', m.tipoCuenta), cp('N° de cuenta', m.cuenta), cp('CCI', m.cci), tx('Titular', m.titular));
+  if (m.nota) L.push(`<div class="small" style="margin-top:4px">${esc(m.nota)}</div>`);
+  const body = L.join('');
+  return body ? `<div class="card medio" style="padding:10px 12px;margin-top:8px;background:var(--brand-soft)"><b class="small">💳 ${esc(m.nombre)}</b>${body}</div>` : '';
+}
 const promosVisibles = () => EMP.promos.filter(p => promoActiva(p) && EMP.productos.some(x => x.id === p.productoId && x.activo));
 
 /* ---------- layout ---------- */
@@ -323,14 +403,14 @@ function layout(vista, body) {
   const tabs = [['inicio','🏠','Inicio'],['catalogo','🛍️','Catálogo'],['promos','🏷️','Promos'],['pedidos','📦','Pedidos'],['contacto','☎️','Contacto']];
   return `${MODE === 'local' ? '<div class="demo-bar">Modo demostración: los datos se guardan en este navegador.</div>' : ''}
   <header class="top"><a href="#inicio" class="brand">${logoHTML(EMP)}<div style="min-width:0"><div class="bname">${esc(EMP.nombre)}</div><div class="bslogan">${esc(EMP.eslogan)}</div></div></a>
-  <a class="cartbtn" href="#carrito" aria-label="Carrito">🛒<span class="cnt" ${n ? '' : 'hidden'}>${n}</span></a></header>
+  <button class="cartbtn" data-act="buscar" aria-label="Búsqueda rápida" title="Búsqueda rápida">🔍</button><a class="cartbtn" href="#carrito" aria-label="Carrito">🛒<span class="cnt" ${n ? '' : 'hidden'}>${n}</span></a></header>
   <main>${body}</main>
   <nav class="bottom">${tabs.map(t => `<a href="#${t[0]}" class="${vista === t[0] ? 'on' : ''}"><span class="i">${t[1]}</span>${t[2]}</a>`).join('')}</nav>`;
 }
 function cardProd(p) {
   const pr = promoDe(EMP, p.id), pf = precioFinal(EMP, p), agot = p.tipo === 'producto' && p.stock <= 0;
   return `<div class="card"><a href="#producto-${p.id}" class="thumb">${imgHTML(p)}${pr ? `<span class="badge">-${pr.descuento}%</span>` : ''}${p.tipo === 'servicio' ? '<span class="tag">Servicio</span>' : ''}</a>
-  <div class="pbody"><a href="#producto-${p.id}" class="pname">${esc(p.nombre)}</a><div class="price">${pr ? `<s>${money(p.precio)}</s>` : ''}<b>${money(pf)}</b></div>
+  <div class="pbody"><a href="#producto-${p.id}" class="pname">${esc(p.nombre)}</a><div class="psub">${esc(p.subfamilia || p.familia)}${p.tipoLente ? ' · ' + esc(p.tipoLente) : ''}</div><div class="price">${pr ? `<s>${money(p.precio)}</s>` : ''}<b>${money(pf)}</b></div>
   <button class="btn sm full" data-act="add" data-id="${p.id}" ${agot ? 'disabled' : ''}>${agot ? 'Agotado' : p.tipo === 'servicio' ? 'Reservar' : 'Agregar'}</button></div></div>`;
 }
 function cardPromo(pr) {
@@ -353,17 +433,31 @@ function vInicio() {
     <h2>Síguenos</h2><div class="card" style="padding:14px">${socialHTML() || '<div class="muted small">La empresa aún no registró redes sociales.</div>'}</div>`);
 }
 function vCatalogo() {
-  const prods = productosVisibles();
-  const cats = ['Todas', ...new Set(prods.map(p => p.categoria).filter(Boolean))];
-  return layout('catalogo', `<h1>Catálogo</h1><input class="search" id="q" type="search" placeholder="Buscar producto o servicio…" value="${esc(UI.q)}" aria-label="Buscar">
+  const lentes = tiposLente(), trats = tratamientosTodos(), subs = subfamilias(UI.fam);
+  return layout('catalogo', `<h1>Catálogo</h1><input class="search" id="q" type="search" placeholder="Buscar por nombre, código, familia o tratamiento…" value="${esc(UI.q)}" aria-label="Buscar">
     <div class="chips">${[['todos','Todo'],['producto','Productos'],['servicio','Servicios']].map(t => `<button class="chip ${UI.tipo === t[0] ? 'on' : ''}" data-act="tipo" data-v="${t[0]}">${t[1]}</button>`).join('')}</div>
-    <div class="chips">${cats.map(c => `<button class="chip ${UI.cat === c ? 'on' : ''}" data-act="cat" data-v="${esc(c)}">${esc(c)}</button>`).join('')}</div>
+    <div class="filtros">
+      <select class="in" id="f-fam" data-change="fFam" aria-label="Familia">${opciones(familias(), UI.fam, 'Todas las familias')}</select>
+      <select class="in" id="f-sub" data-change="fSub" aria-label="Subfamilia" ${subs.length ? '' : 'disabled'}>${opciones(subs, UI.sub, 'Todas las subfamilias')}</select>
+      ${lentes.length ? `<select class="in" id="f-lente" data-change="fLente" aria-label="Tipo de lente">${opciones(lentes, UI.lente, 'Tipo de lente: todos')}</select>` : ''}
+      ${trats.length ? `<select class="in" id="f-trat" data-change="fTrat" aria-label="Tratamiento">${opciones(trats, UI.trat, 'Tratamiento: todos')}</select>` : ''}
+    </div>
     <div id="gridc"></div>`);
 }
+function filtrar() {
+  const q = norm(UI.q).trim();
+  return productosVisibles().filter(p => (UI.tipo === 'todos' || p.tipo === UI.tipo) && (!UI.fam || p.familia === UI.fam) && (!UI.sub || p.subfamilia === UI.sub)
+    && (!UI.lente || p.tipoLente === UI.lente) && (!UI.trat || tratamientosDe(p).includes(UI.trat)) && coincide(p, q));
+}
 function pintarGrid() {
-  const q = UI.q.trim().toLowerCase();
-  const l = productosVisibles().filter(p => (UI.cat === 'Todas' || p.categoria === UI.cat) && (UI.tipo === 'todos' || p.tipo === UI.tipo) && (!q || (p.nombre + ' ' + p.descripcion + ' ' + p.categoria).toLowerCase().includes(q)));
-  $('#gridc').innerHTML = l.length ? `<div class="small muted" style="margin-bottom:8px">${l.length} resultado(s)</div><div class="grid">${l.map(cardProd).join('')}</div>` : `<div class="empty"><div class="e">🔎</div>No encontramos resultados.</div>`;
+  const box = $('#gridc'); if (!box) return;
+  const l = filtrar(), hayFiltro = UI.q || UI.fam || UI.sub || UI.lente || UI.trat || UI.tipo !== 'todos';
+  if (!l.length) { box.innerHTML = `<div class="empty"><div class="e">🔎</div>No encontramos resultados.${hayFiltro ? '<br><br><button class="btn ghost" data-act="limpiarFiltros">Limpiar filtros</button>' : ''}</div>`; return; }
+  const grupos = new Map();
+  l.forEach(p => { const f = p.familia || 'General', sub = p.subfamilia || ''; if (!grupos.has(f)) grupos.set(f, new Map()); const g = grupos.get(f); if (!g.has(sub)) g.set(sub, []); g.get(sub).push(p); });
+  box.innerHTML = `<div class="row between small muted"><span>${l.length} resultado(s)</span>${hayFiltro ? '<button class="btn sm ghost" data-act="limpiarFiltros">Limpiar filtros</button>' : ''}</div>` +
+    [...grupos].map(([f, subs]) => `<div class="grp">${esc(f)} <span>${[...subs.values()].reduce((a, b) => a + b.length, 0)}</span></div>` +
+      [...subs].map(([sub, ps]) => `${sub ? `<div class="subgrp">› ${esc(sub)}</div>` : ''}<div class="grid">${ps.map(cardProd).join('')}</div>`).join('')).join('');
 }
 function vPromos() {
   const l = promosVisibles();
@@ -377,10 +471,11 @@ function vProducto(id) {
   const pr = promoDe(EMP, p.id), agot = p.tipo === 'producto' && p.stock <= 0;
   return layout('catalogo', `<a href="#catalogo" class="small muted">← Catálogo</a>
     <div class="thumb big" style="margin-top:10px">${imgHTML(p)}${pr ? `<span class="badge">-${pr.descuento}%</span>` : ''}</div>
-    <div class="small muted" style="margin-top:12px">${esc(p.categoria)} · ${p.tipo === 'servicio' ? 'Servicio' : (agot ? '<b style="color:var(--bad)">Agotado</b>' : `${p.stock} disponibles`)}</div>
+    <div class="small muted" style="margin-top:12px">${famTxt(p)} · ${p.tipo === 'servicio' ? 'Servicio' : (agot ? '<b style="color:var(--bad)">Agotado</b>' : `${p.stock} disponibles`)}</div>
     <h1 style="margin-top:4px">${esc(p.nombre)}</h1>
     <div class="price"><b style="font-size:24px">${money(precioFinal(EMP, p))}</b>${pr ? `<s>${money(p.precio)}</s> <span class="off">${esc(pr.titulo)} · hasta ${fechaTxt(pr.fin)}</span>` : ''}</div>
     <p class="muted">${esc(p.descripcion)}</p>
+    <div class="card info">${[['Código', p.codigo], ['Familia', p.familia + (p.subfamilia ? ' › ' + p.subfamilia : '')], ['Tipo de lente', p.tipoLente], ['Tratamientos', tratamientosDe(p).join(', ')]].filter(r => r[1]).map(r => `<div class="row" style="padding:8px 0"><span class="muted small" style="width:105px;flex:none">${r[0]}</span><b class="small">${esc(r[1])}</b></div>`).join('')}</div>
     <div class="row" style="margin:16px 0"><div class="qty"><button data-act="qty" data-d="-1" aria-label="Menos">−</button><span id="qtyv">1</span><button data-act="qty" data-d="1" data-max="${p.tipo === 'producto' ? p.stock : 99}" aria-label="Más">+</button></div>
     <button class="btn" style="flex:1" data-act="addQty" data-id="${p.id}" ${agot ? 'disabled' : ''}>${agot ? 'Agotado' : p.tipo === 'servicio' ? 'Reservar servicio' : 'Agregar al carrito'}</button></div>
     ${EMP.whatsapp ? `<a class="btn wa full" href="${waLink(`Hola ${EMP.nombre}, me interesa: ${p.nombre} (${money(precioFinal(EMP, p))}). ¿Está disponible?`)}" target="_blank" rel="noopener">Consultar por WhatsApp</a>` : ''}`);
@@ -402,9 +497,11 @@ function vCarrito() {
 }
 function vCheckout() {
   const c = getCart(); if (!c.length) { location.hash = 'carrito'; return ''; }
-  const hayProd = calcular(EMP, c, 'recojo').lineas.some(l => l.tipo === 'producto');
-  const hayServ = calcular(EMP, c, 'recojo').lineas.some(l => l.tipo === 'servicio');
+  const lin = calcular(EMP, c, 'recojo').lineas;
+  const hayProd = lin.some(l => l.tipo === 'producto'), hayServ = lin.some(l => l.tipo === 'servicio');
   const ult = LS.get('wl_cliente', {});
+  const uc = (ult.ubigeo && ult.ubigeo.codigo) || '150100';
+  const part = (a, b) => { const v = uc.slice(a, b); return v === '00' ? '' : v; };
   return layout('', `<a href="#carrito" class="small muted">← Carrito</a><h1>Confirmar pedido</h1>
   <div class="steps" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i></div><div class="small muted">Paso 2 de 3 · Tus datos</div>
   <form data-form="checkout" novalidate>
@@ -412,21 +509,22 @@ function vCheckout() {
     <label class="f" for="c-tel">Celular *</label><input class="in" id="c-tel" name="telefono" inputmode="numeric" placeholder="9XXXXXXXX" autocomplete="tel" value="${esc(ult.telefono)}"><div class="err">Ingresa un celular válido de 9 dígitos que empiece con 9.</div>
     <label class="f" for="c-email">Correo (opcional)</label><input class="in" id="c-email" name="email" type="email" autocomplete="email" value="${esc(ult.email)}"><div class="err">El correo no es válido.</div>
     ${hayProd ? `<label class="f">Entrega de productos *</label><div class="seg"><label><input type="radio" name="entrega" value="delivery" checked><span>🚚 Delivery</span></label><label><input type="radio" name="entrega" value="recojo"><span>🏬 Recojo en tienda</span></label></div>` : '<input type="hidden" name="entrega" value="servicio">'}
-    <div id="dirbox"><label class="f" for="c-dir">Dirección ${hayServ ? '(delivery y/o servicio a domicilio)' : 'de entrega'} *</label><input class="in" id="c-dir" name="direccion" autocomplete="street-address" value="${esc(ult.direccion)}"><div class="err">Ingresa la dirección.</div></div>
+    ${ubigeoHTML(part(0, 2), part(2, 4), part(4, 6))}
+    <label class="f" for="c-dir">Dirección (calle, número y referencia) *</label><input class="in" id="c-dir" name="direccion" autocomplete="street-address" placeholder="Ej: Av. Primavera 1234, dpto 302, frente al parque" value="${esc(ult.direccion)}"><div class="err">Ingresa tu dirección (mínimo 5 caracteres).</div>
     ${hayServ ? `<label class="f" for="c-fecha">Fecha preferida para el servicio *</label><input class="in" id="c-fecha" type="date" name="fechaServicio" min="${isoDia(1)}"><div class="err">Elige una fecha desde mañana.</div>` : ''}
     <label class="f" for="c-pago">Método de pago *</label><select class="in" id="c-pago" name="pago">${EMP.pagos.map(p => `<option>${esc(p)}</option>`).join('')}</select><div class="err">Elige un método de pago.</div>
+    <div id="pagoinfo"></div>
     <label class="f" for="c-nota">Nota para la tienda (opcional)</label><textarea class="in" id="c-nota" name="nota" rows="2" maxlength="300"></textarea>
     <div class="card tot" style="margin-top:14px" id="totbox"></div>
     <label class="row small" style="margin-top:12px;align-items:flex-start"><input type="checkbox" name="acepto" id="c-ok" style="margin-top:3px"><span>Acepto que ${esc(EMP.nombre)} me contacte por WhatsApp o llamada para coordinar mi pedido.</span></label><div class="err" id="err-ok">Debes aceptar para continuar.</div>
     <button class="btn full" style="margin-top:14px" type="submit" id="btn-confirmar">Confirmar pedido</button>
   </form>`);
 }
+function pintarPagoInfo() { const f = $('form[data-form=checkout]'); if (f && $('#pagoinfo')) $('#pagoinfo').innerHTML = detalleMedioHTML(medioPorNombre(f.pago.value)); }
 function pintarTotales() {
   const f = $('form[data-form=checkout]'); if (!f) return;
   const entrega = (f.entrega?.value) || 'servicio';
   const t = calcular(EMP, getCart(), entrega);
-  const hayServ = t.lineas.some(l => l.tipo === 'servicio');
-  $('#dirbox').style.display = (entrega === 'recojo' && !hayServ) ? 'none' : '';
   $('#totbox').innerHTML = `${t.lineas.map(l => `<div class="row small"><span>${l.cant} × ${esc(l.nombre)}</span><span>${money(l.precioFinal * l.cant)}</span></div>`).join('')}
     <hr style="margin:8px 0"><div class="row"><span>Subtotal</span><span>${money(t.subtotal)}</span></div>
     ${t.descuento ? `<div class="row" style="color:var(--ok)"><span>Descuentos</span><span>− ${money(t.descuento)}</span></div>` : ''}
@@ -436,14 +534,15 @@ function pintarTotales() {
 }
 function validarCheckout(f) {
   const v = Object.fromEntries(new FormData(f).entries());
+  const dep = f.dep.value, prov = f.prov.value, dist = f.dist.value;
   const t = calcular(EMP, getCart(), v.entrega || 'servicio');
   const hayServ = t.lineas.some(l => l.tipo === 'servicio');
-  const necesitaDir = v.entrega === 'delivery' || hayServ;
   const errores = {
     nombre: (v.nombre || '').trim().length < 3,
     telefono: !/^9\d{8}$/.test((v.telefono || '').replace(/\D/g, '')),
     email: v.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v.email),
-    direccion: necesitaDir && (v.direccion || '').trim().length < 5,
+    dep: !dep, prov: !prov, dist: !dist,
+    direccion: (v.direccion || '').trim().length < 5,
     fechaServicio: hayServ && (!v.fechaServicio || v.fechaServicio <= hoy()),
     pago: !v.pago
   };
@@ -452,7 +551,10 @@ function validarCheckout(f) {
   $('#err-ok').style.display = v.acepto ? 'none' : 'block';
   if (primero) { primero.focus(); toast('Revisa los campos marcados'); return null; }
   if (!v.acepto) { toast('Debes aceptar para continuar'); return null; }
-  return {nombre: v.nombre.trim(), telefono: v.telefono.replace(/\D/g, ''), email: (v.email || '').trim(), entrega: v.entrega || 'servicio', direccion: necesitaDir ? v.direccion.trim() : '', fechaServicio: hayServ ? v.fechaServicio : '', pago: v.pago, nota: (v.nota || '').trim()};
+  const D = ubDep(dep), P = ubProv(dep, prov), T = P[2].find(x => x[0] === dist);
+  return {nombre: v.nombre.trim(), telefono: v.telefono.replace(/\D/g, ''), email: (v.email || '').trim(), entrega: v.entrega || 'servicio', direccion: v.direccion.trim(),
+    ubigeo: {codigo: dep + prov + dist, departamento: D[1], provincia: P[1], distrito: T[1]},
+    fechaServicio: hayServ ? v.fechaServicio : '', pago: v.pago, nota: (v.nota || '').trim()};
 }
 async function crearPedido(cliente) {
   const items = getCart();
@@ -460,7 +562,7 @@ async function crearPedido(cliente) {
   if (MODE === 'api') {
     pedido = (await api('order', {empresaId: EMP.id, items, cliente})).pedido;
     // refrescar stock local
-    const fresh = await api('load'); if (fresh.empresas) { DB.empresas = fresh.empresas; EMP = DB.empresas.find(e => e.id === EMP.id) || EMP; }
+    const fresh = await api('load'); if (fresh.empresas) { DB.empresas = fresh.empresas.map(normalizar); EMP = DB.empresas.find(e => e.id === EMP.id) || EMP; }
   } else {
     const t = calcular(EMP, items, cliente.entrega);
     if (!t.lineas.length) throw new Error('El carrito está vacío');
@@ -471,22 +573,25 @@ async function crearPedido(cliente) {
     DB.pedidos.unshift(pedido); await guardarDB();
   }
   const mis = LS.get('wl_mis', []); mis.unshift({id: pedido.id, empresaId: EMP.id}); LS.set('wl_mis', mis.slice(0, 50));
-  LS.set('wl_cliente', {nombre: cliente.nombre, telefono: cliente.telefono, email: cliente.email, direccion: cliente.direccion});
+  LS.set('wl_cliente', {nombre: cliente.nombre, telefono: cliente.telefono, email: cliente.email, direccion: cliente.direccion, ubigeo: cliente.ubigeo});
   LS.set('wl_ult_' + pedido.id, pedido);
   setCart([]);
   return pedido;
 }
 function mensajePedido(p) {
-  const L = [`*Nuevo pedido ${p.num}* – ${EMP.nombre}`, '', `👤 ${p.cliente.nombre}`, `📱 ${p.cliente.telefono}`];
-  if (p.cliente.entrega === 'delivery') L.push(`🚚 Delivery: ${p.cliente.direccion}`); else if (p.cliente.entrega === 'recojo') L.push('🏬 Recojo en tienda');
-  if (p.cliente.fechaServicio) L.push(`📅 Servicio: ${fechaTxt(p.cliente.fechaServicio)}${p.cliente.entrega !== 'delivery' ? ' – ' + p.cliente.direccion : ''}`);
-  L.push(`💳 Pago: ${p.cliente.pago}`, '', '*Detalle*');
+  const c = p.cliente, L = [`*Nuevo pedido ${p.num}* – ${EMP.nombre}`, '', `👤 ${c.nombre}`, `📱 ${c.telefono}`];
+  if (c.entrega === 'delivery') L.push('🚚 Delivery'); else if (c.entrega === 'recojo') L.push('🏬 Recojo en tienda');
+  if (c.direccion) L.push(`📍 ${c.direccion}${c.ubigeo ? ' – ' + ubTxt(c.ubigeo) : ''}`);
+  if (c.fechaServicio) L.push(`📅 Servicio: ${fechaTxt(c.fechaServicio)}`);
+  L.push(`💳 Pago: ${c.pago}`);
+  const m = medioPorNombre(c.pago); if (m && m.tipo !== 'otro') L.push('📎 Enviaré la constancia de pago.');
+  L.push('', '*Detalle*');
   p.lineas.forEach(l => L.push(`• ${l.cant} x ${l.nombre} – ${money(l.precioFinal * l.cant)}`));
   L.push('', `Subtotal: ${money(p.subtotal)}`);
   if (p.descuento) L.push(`Descuentos: -${money(p.descuento)}`);
-  if (p.cliente.entrega === 'delivery') L.push(`Envío: ${p.envio ? money(p.envio) : 'Gratis'}`);
+  if (c.entrega === 'delivery') L.push(`Envío: ${p.envio ? money(p.envio) : 'Gratis'}`);
   L.push(`*TOTAL: ${money(p.total)}*`);
-  if (p.cliente.nota) L.push('', `Nota: ${p.cliente.nota}`);
+  if (c.nota) L.push('', `Nota: ${c.nota}`);
   return L.join('\n');
 }
 function vPedidoOk(id) {
@@ -498,6 +603,7 @@ function vPedidoOk(id) {
     <div class="card" style="padding:14px"><b>Último paso:</b> envía tu pedido por WhatsApp para que ${esc(EMP.nombre)} lo confirme y te indique cómo pagar.</div>
     ${EMP.whatsapp ? `<a class="btn wa full" style="margin-top:12px" id="btn-wa" href="${waLink(msg)}" target="_blank" rel="noopener">Enviar pedido por WhatsApp</a>
       <div class="small muted" style="text-align:center;margin-top:6px">WhatsApp: +${esc(EMP.whatsapp)}</div>` : '<div class="card" style="padding:12px;margin-top:10px">La empresa te contactará al número registrado.</div>'}
+    ${(() => { const m = medioPorNombre(p.cliente.pago), d = detalleMedioHTML(m); return d ? `<h2>Cómo pagar</h2>${d}` : ''; })()}
     <button class="btn ghost full" style="margin-top:8px" data-act="copyMsg" data-id="${p.id}">Copiar detalle del pedido</button>
     <a class="btn ghost full" style="margin-top:8px" href="#pedidos">Ver estado en "Mis pedidos"</a>
     <a class="btn ghost full" style="margin-top:8px" href="#catalogo">Seguir comprando</a>`);
@@ -528,6 +634,7 @@ function vContacto() {
       <div class="row"><span class="k">💳</span><div><b>Medios de pago</b><br>${e.pagos.map(esc).join(' · ')}</div></div>
       <div class="row"><span class="k">🚚</span><div><b>Delivery</b><br>${money(e.envio.costo)} · gratis desde ${money(e.envio.gratisDesde)}</div></div>
     </div>
+    ${(() => { const md = e.medios.filter(m => m.activo).map(detalleMedioHTML).join(''); return md ? `<h2>Medios de pago</h2>${md}` : ''; })()}
     <h2>Redes sociales</h2><div class="card" style="padding:14px">${socialHTML() || '<div class="muted small">Sin redes registradas.</div>'}</div>
     <div style="text-align:center;margin-top:26px"><a href="#admin" class="small muted">🔐 Acceso para la empresa</a></div>`);
 }
@@ -567,7 +674,7 @@ function admPedidos() {
     const aviso = `Hola ${p.cliente.nombre}, te escribimos de ${EMP.nombre}. Tu pedido ${p.num} por ${money(p.total)} está: *${p.estado}*.`;
     return `<div class="card" style="padding:12px" data-pedido="${p.id}"><div class="row between"><b>${esc(p.num)}</b><span class="status st-${p.estado.split(' ')[0]}">${esc(p.estado)}</span></div>
     <div class="small muted">${fechaHora(p.fecha)} · ${esc(p.cliente.pago)} · ${p.cliente.entrega === 'delivery' ? 'Delivery' : p.cliente.entrega === 'recojo' ? 'Recojo' : 'Servicio'}</div>
-    <div style="margin:6px 0"><b>${esc(p.cliente.nombre)}</b> · ${esc(p.cliente.telefono)}${p.cliente.direccion ? `<br><span class="small">${esc(p.cliente.direccion)}</span>` : ''}${p.cliente.fechaServicio ? `<br><span class="small">📅 Servicio: ${fechaTxt(p.cliente.fechaServicio)}</span>` : ''}${p.cliente.nota ? `<br><span class="small">📝 ${esc(p.cliente.nota)}</span>` : ''}</div>
+    <div style="margin:6px 0"><b>${esc(p.cliente.nombre)}</b> · ${esc(p.cliente.telefono)}${p.cliente.direccion ? `<br><span class="small">📍 ${esc(p.cliente.direccion)}${p.cliente.ubigeo ? ' – ' + esc(ubTxt(p.cliente.ubigeo)) : ''}</span>` : ''}${p.cliente.fechaServicio ? `<br><span class="small">📅 Servicio: ${fechaTxt(p.cliente.fechaServicio)}</span>` : ''}${p.cliente.nota ? `<br><span class="small">📝 ${esc(p.cliente.nota)}</span>` : ''}</div>
     <div class="small">${p.lineas.map(l => `${l.cant}× ${esc(l.nombre)} (${money(l.precioFinal * l.cant)})`).join('<br>')}</div>
     <div class="row between" style="margin-top:6px"><span class="small">${p.envio ? 'Envío ' + money(p.envio) : ''}</span><b>Total ${money(p.total)}</b></div>
     <div class="row" style="margin-top:10px"><select class="in" data-change="estado" data-id="${p.id}" aria-label="Estado del pedido">${ESTADOS.map(e => `<option ${e === p.estado ? 'selected' : ''}>${e}</option>`).join('')}</select>
@@ -575,11 +682,101 @@ function admPedidos() {
 }
 function admProductos() {
   const n = EMP.productos.length, full = n >= MAX_PROD;
-  return `<div class="row between" style="margin-bottom:10px"><span class="limit ${full ? 'full' : ''}">${n} / ${MAX_PROD} productos</span><button class="btn sm" data-act="editProd" data-id="" ${full ? 'disabled' : ''}>+ Nuevo</button></div>
+  return `<div class="card" style="padding:12px;margin-bottom:12px"><b class="small">Carga masiva con Excel</b>
+      <div class="small muted" style="margin:4px 0 10px">Descarga la plantilla, llénala y súbela. Puedes actualizar por código o reemplazar todo el catálogo.</div>
+      <div class="row wrap" style="gap:8px"><label class="btn sm" style="cursor:pointer">⬆ Importar Excel<input type="file" id="imp-xlsx" accept=".xlsx,.xls,.csv" data-change="importXlsx" hidden></label>
+      <a class="btn sm ghost" href="plantilla-productos.xlsx" download>⬇ Plantilla</a><button class="btn sm ghost" data-act="exportXlsx">⬇ Exportar catálogo</button></div></div>
+    <div class="row between" style="margin-bottom:10px"><span class="limit ${full ? 'full' : ''}">${n} / ${MAX_PROD} productos</span><button class="btn sm" data-act="editProd" data-id="" ${full ? 'disabled' : ''}>+ Nuevo</button></div>
     ${full ? '<div class="small muted" style="margin-bottom:8px">Llegaste al límite del plan. Elimina o desactiva uno para agregar otro.</div>' : ''}
     <div class="card">${n ? EMP.productos.map(p => `<div class="adm-item"><div class="thumb">${imgHTML(p)}</div><div class="grow"><div class="t">${esc(p.nombre)}</div>
+      <div class="small muted">${esc(p.codigo)} · ${famTxt(p)}</div>
       <div class="small muted">${money(p.precio)} · ${p.tipo === 'servicio' ? 'Servicio' : 'Stock ' + p.stock}${p.activo ? '' : ' · <b>oculto</b>'}${promoDe(EMP, p.id) ? ' · 🏷️' : ''}</div></div>
       <button class="btn sm ghost" data-act="editProd" data-id="${p.id}">Editar</button></div>`).join('') : '<div class="adm-item muted">Sin productos.</div>'}</div>`;
+}
+/* ---------- Excel: importar / exportar ---------- */
+const COLS = [['codigo','Código'],['nombre','Nombre *'],['tipo','Tipo * (producto / servicio)'],['familia','Familia *'],['subfamilia','Subfamilia'],['tipoLente','Tipo de lente'],['tratamientos','Tratamientos (separados por coma)'],['precio','Precio S/ *'],['stock','Stock'],['descripcion','Descripción'],['emoji','Ícono'],['img','Imagen URL (opcional)'],['activo','Visible (SI / NO)']];
+const ALIAS = {codigo:'codigo',sku:'codigo',cod:'codigo',nombre:'nombre',producto:'nombre',tipo:'tipo',familia:'familia',categoria:'familia',subfamilia:'subfamilia',tipodelente:'tipoLente',tipolente:'tipoLente',lente:'tipoLente',tratamientos:'tratamientos',tratamiento:'tratamientos',precio:'precio',precios:'precio',stock:'stock',descripcion:'descripcion',icono:'emoji',emoji:'emoji',imagenurl:'img',imagen:'img',foto:'img',visible:'activo',activo:'activo'};
+const claveCol = h => ALIAS[norm(h).replace(/\(.*?\)/g, '').replace(/[^a-z0-9]/g, '')] || '';
+let XLSX_P = null, IMPORT = null;
+function cargarScript(src) { return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = () => window.XLSX ? res(window.XLSX) : rej(new Error('x')); s.onerror = () => { s.remove(); rej(new Error('x')); }; document.head.appendChild(s); }); }
+function cargarXLSX() {
+  if (window.XLSX) return Promise.resolve(window.XLSX);
+  if (!XLSX_P) XLSX_P = cargarScript('vendor/xlsx.full.min.js').catch(() => cargarScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'))
+    .catch(() => { XLSX_P = null; throw new Error('No se pudo cargar el lector de Excel. Revisa tu conexión.'); });
+  return XLSX_P;
+}
+async function leerExcel(file) {
+  const X = await cargarXLSX();
+  const wb = X.read(await file.arrayBuffer(), {type: 'array'});
+  const hoja = wb.SheetNames.find(n => norm(n) === 'productos') || wb.SheetNames[0];
+  const filas = X.utils.sheet_to_json(wb.Sheets[hoja], {header: 1, defval: '', raw: true});
+  const hi = filas.findIndex((r, i) => i < 15 && r.map(claveCol).includes('nombre') && r.map(claveCol).includes('precio'));
+  if (hi < 0) throw new Error('No se encontró la fila de títulos (Nombre, Precio…). Usa la plantilla.');
+  const mapa = filas[hi].map(claveCol), items = [], errores = [], vistos = new Set();
+  for (let i = hi + 1; i < filas.length; i++) {
+    const o = {}; mapa.forEach((k, j) => { if (k) o[k] = filas[i][j]; });
+    const tx = k => String(o[k] ?? '').trim();
+    if (!tx('nombre') && !tx('codigo') && !tx('precio')) continue;
+    const fila = i + 1, errs = [];
+    const tipo = /serv/i.test(tx('tipo')) ? 'servicio' : 'producto';
+    const precio = typeof o.precio === 'number' ? o.precio : parseFloat(tx('precio').replace(/[^0-9.,-]/g, '').replace(',', '.'));
+    const stock = tx('stock') === '' ? 0 : Number(tx('stock'));
+    const img = tx('img');
+    if (tx('nombre').length < 3) errs.push('nombre vacío o muy corto');
+    if (!tx('familia')) errs.push('falta la familia');
+    if (!(precio > 0)) errs.push('precio inválido');
+    if (tipo === 'producto' && !(Number.isInteger(stock) && stock >= 0)) errs.push('el stock debe ser un número entero');
+    if (img && !/^https?:\/\//i.test(img)) errs.push('la imagen debe ser un enlace que empiece con http');
+    const cod = tx('codigo');
+    if (cod) { if (vistos.has(norm(cod))) errs.push(`código ${cod} repetido`); vistos.add(norm(cod)); }
+    if (errs.length) { errores.push(`Fila ${fila}: ${errs.join(', ')}`); continue; }
+    items.push({codigo: cod, nombre: tx('nombre'), tipo, familia: tx('familia'), subfamilia: tx('subfamilia'), tipoLente: tx('tipoLente'),
+      tratamientos: tratamientosDe({tratamientos: tx('tratamientos')}).join(', '), precio: r2(precio), stock: tipo === 'producto' ? stock : null,
+      descripcion: tx('descripcion'), emoji: tx('emoji'), img, activo: !/^(no|0|false|falso|n)$/i.test(tx('activo'))});
+  }
+  IMPORT = {items, errores, archivo: file.name};
+  modalImport('actualizar');
+}
+function planImport(modo) {
+  const actuales = EMP.productos, usados = new Set();
+  const buscar = it => actuales.find(p => it.codigo ? norm(p.codigo) === norm(it.codigo) : norm(p.nombre) === norm(it.nombre));
+  const lista = modo === 'reemplazar' ? [] : actuales.map(p => ({...p}));
+  let nuevos = 0, actualizados = 0;
+  IMPORT.items.forEach((it, i) => {
+    const ex = buscar(it), d = {...it};
+    if (!d.img && ex) d.img = ex.img;
+    if (!d.emoji) d.emoji = ex?.emoji || (d.tipo === 'servicio' ? '🛠️' : '📦');
+    if (ex && !usados.has(ex.id)) {
+      actualizados++; usados.add(ex.id);
+      const p = {...ex, ...d, id: ex.id, codigo: d.codigo || ex.codigo, categoria: d.familia};
+      if (modo === 'reemplazar') lista.push(p); else lista[lista.findIndex(x => x.id === ex.id)] = p;
+    } else { nuevos++; lista.push({...d, id: 'p' + uid() + i, categoria: d.familia}); }
+  });
+  const codigos = new Set(lista.map(p => norm(p.codigo)).filter(Boolean));
+  let n = 1; lista.forEach(p => { if (!p.codigo) { let c; do { c = (EMP.codigo || 'PR') + '-' + String(n++).padStart(3, '0'); } while (codigos.has(norm(c))); p.codigo = c; codigos.add(norm(c)); } });
+  const ids = new Set(lista.map(p => p.id));
+  return {lista, nuevos, actualizados, eliminados: modo === 'reemplazar' ? actuales.filter(p => !usados.has(p.id)).length : 0, total: lista.length, promosPerdidas: EMP.promos.filter(pr => !ids.has(pr.productoId)).length};
+}
+function modalImport(modo) {
+  const {items, errores} = IMPORT, pl = planImport(modo), excede = pl.total > MAX_PROD;
+  modal(`<h3>Importar productos</h3><div class="small muted">${esc(IMPORT.archivo)} · ${items.length} fila(s) válida(s)</div>
+    <div class="seg" style="margin-top:12px"><label><input type="radio" name="modoimp" value="actualizar" data-change="modoImport" ${modo === 'actualizar' ? 'checked' : ''}><span>Actualizar y agregar</span></label><label><input type="radio" name="modoimp" value="reemplazar" data-change="modoImport" ${modo === 'reemplazar' ? 'checked' : ''}><span>Reemplazar todo</span></label></div>
+    <div class="small muted" style="margin-top:6px">${modo === 'actualizar' ? 'Actualiza los productos con el mismo código (o nombre, si no tiene código) y agrega los nuevos. El resto se mantiene.' : 'El catálogo queda igual al Excel. Las fotos se conservan cuando el código coincide.'}</div>
+    <div class="kpis" style="margin-top:12px"><div class="card kpi"><span class="small muted">Nuevos</span><b id="imp-nuevos">${pl.nuevos}</b></div><div class="card kpi"><span class="small muted">Actualizados</span><b id="imp-act">${pl.actualizados}</b></div>
+    <div class="card kpi"><span class="small muted">Eliminados</span><b>${pl.eliminados}</b></div><div class="card kpi"><span class="small muted">Total final</span><b style="color:${excede ? 'var(--bad)' : 'inherit'}">${pl.total} / ${MAX_PROD}</b></div></div>
+    ${excede ? `<div class="card" style="padding:10px;margin-top:10px;color:var(--bad)">Tu plan permite ${MAX_PROD} productos. Quita filas del Excel${modo === 'actualizar' ? ' o usa "Reemplazar todo"' : ''}.</div>` : ''}
+    ${errores.length ? `<div class="card" style="padding:10px;margin-top:10px"><b class="small" style="color:var(--bad)">${errores.length} fila(s) con errores no se importarán:</b><div class="small" id="imp-errores" style="max-height:140px;overflow:auto;margin-top:4px">${errores.map(esc).join('<br>')}</div></div>` : ''}
+    ${pl.promosPerdidas ? `<div class="small muted" style="margin-top:8px">⚠️ ${pl.promosPerdidas} promoción(es) se eliminarán porque su producto ya no estará.</div>` : ''}
+    <div class="row" style="margin-top:14px"><button class="btn ghost full" data-act="closeModal">Cancelar</button><button class="btn full" id="btn-importar" data-act="aplicarImport" data-modo="${modo}" ${!items.length || excede ? 'disabled' : ''}>Importar</button></div>`);
+}
+async function exportarExcel() {
+  try {
+    const X = await cargarXLSX();
+    const aoa = [COLS.map(c => c[1])].concat(EMP.productos.map(p => COLS.map(([k]) => k === 'activo' ? (p.activo ? 'SI' : 'NO') : k === 'img' ? (/^https?:/i.test(p.img || '') ? p.img : '') : k === 'stock' ? (p.tipo === 'producto' ? p.stock : '') : (p[k] ?? ''))));
+    const ws = X.utils.aoa_to_sheet(aoa); ws['!cols'] = COLS.map(([k]) => ({wch: {nombre: 34, descripcion: 50, tratamientos: 34, img: 30}[k] || 16}));
+    const wb = X.utils.book_new(); X.utils.book_append_sheet(wb, ws, 'Productos');
+    X.writeFile(wb, `catalogo-${EMP.slug || 'empresa'}.xlsx`); toast('Excel descargado ✓');
+  } catch (e) { toast(e.message || 'No se pudo generar el Excel'); }
 }
 function admPromos() {
   const n = EMP.promos.length, full = n >= MAX_PROMO;
@@ -606,22 +803,54 @@ function admEmpresa() {
     <label class="f">Horario</label><input class="in" name="horario" value="${esc(e.horario)}">
     <hr><b>Venta</b>
     <div class="two"><div><label class="f">Costo delivery</label><input class="in" name="envioCosto" type="number" min="0" step="0.5" value="${e.envio.costo}"></div><div><label class="f">Gratis desde</label><input class="in" name="envioGratis" type="number" min="0" step="1" value="${e.envio.gratisDesde}"></div></div>
-    <label class="f">Medios de pago aceptados</label><div class="row wrap">${PAGOS.map(p => `<label class="chip"><input type="checkbox" name="pagos" value="${p}" ${e.pagos.includes(p) ? 'checked' : ''}> ${p}</label>`).join('')}</div>
     <hr><b>Redes sociales</b> <span class="small muted">(usuario o enlace completo)</span>
     ${REDES.map(r => `<label class="f">${NOMBRE_RED[r]}</label><input class="in" name="red_${r}" value="${esc(e.redes[r])}" placeholder="@usuario">`).join('')}
     ${MODE === 'local' ? `<hr><label class="f">PIN del panel</label><input class="in" name="pin" type="password" inputmode="numeric" placeholder="Dejar vacío para no cambiar">` : ''}
     <button class="btn full" style="margin-top:16px">Guardar datos</button>
-    ${DB.empresas.length > 1 ? '<button type="button" class="btn danger full" style="margin-top:8px" data-act="delEmp">Eliminar esta empresa</button>' : ''}</form>`;
+    ${DB.empresas.length > 1 ? '<button type="button" class="btn danger full" style="margin-top:8px" data-act="delEmp">Eliminar esta empresa</button>' : ''}</form>${admMedios()}`;
+}
+function admMedios() {
+  return `<h2>Medios de pago <button class="btn sm" data-act="editMedio" data-id="">+ Agregar</button></h2>
+    <div class="small muted" style="margin:-4px 0 8px">Los datos (número, cuenta, CCI) se muestran al cliente al pagar y en Contacto.</div>
+    <div class="card">${EMP.medios.map(m => `<div class="adm-item"><div class="grow"><div class="t">${esc(m.nombre)} ${m.activo ? '' : '<span class="status">inactivo</span>'}</div>
+      <div class="small muted">${TIPO_MEDIO[m.tipo] || ''}${m.tipo === 'billetera' && m.numero ? ' · ' + esc(m.numero) : ''}${m.tipo === 'transferencia' && m.banco ? ' · ' + esc(m.banco) + (m.cuenta ? ' ' + esc(m.cuenta) : ' · <b>falta N° de cuenta</b>') : ''}</div></div>
+      <button class="btn sm ghost" data-act="editMedio" data-id="${m.id}">Editar</button></div>`).join('')}</div>`;
+}
+function modalMedio(id) {
+  const m = EMP.medios.find(x => x.id === id) || medioBase({tipo: 'transferencia'});
+  modal(`<h3>${id ? 'Editar' : 'Nuevo'} medio de pago</h3><form data-form="medio" data-id="${id || ''}" novalidate>
+    <label class="f">Nombre que verá el cliente *</label><input class="in" name="nombre" value="${esc(m.nombre)}" maxlength="40" placeholder="Ej: Transferencia BCP, Yape, Interbank"><div class="err">Obligatorio y sin repetir.</div>
+    <label class="f">Tipo</label><select class="in" name="tipo">${[['billetera', 'Billetera digital (Yape, Plin)'], ['transferencia', 'Transferencia o depósito bancario'], ['otro', 'Otro (tarjeta, efectivo, contra entrega)']].map(([v, t]) => `<option value="${v}" ${m.tipo === v ? 'selected' : ''}>${t}</option>`).join('')}</select>
+    <div data-g="billetera"><label class="f">Número de celular *</label><input class="in" name="numero" inputmode="numeric" value="${esc(m.numero)}" placeholder="9XXXXXXXX"><div class="err">9 dígitos, empieza con 9.</div></div>
+    <div data-g="transferencia"><label class="f">Banco *</label><input class="in" name="banco" list="dl-bancos" value="${esc(m.banco)}"><datalist id="dl-bancos">${BANCOS.map(b => `<option value="${b}">`).join('')}</datalist><div class="err">Indica el banco.</div>
+      <label class="f">Tipo de cuenta</label><select class="in" name="tipoCuenta">${TIPOS_CUENTA.map(t => `<option ${m.tipoCuenta === t ? 'selected' : ''}>${t}</option>`).join('')}</select>
+      <label class="f">N° de cuenta *</label><input class="in" name="cuenta" value="${esc(m.cuenta)}"><div class="err">Ingresa el número de cuenta.</div>
+      <label class="f">CCI (interbancario)</label><input class="in" name="cci" inputmode="numeric" value="${esc(m.cci)}" placeholder="20 dígitos"><div class="err">El CCI tiene 20 dígitos.</div></div>
+    <div data-g="billetera transferencia"><label class="f">Titular</label><input class="in" name="titular" value="${esc(m.titular)}"></div>
+    <label class="f">Instrucciones para el cliente</label><textarea class="in" name="nota" rows="2" maxlength="200" placeholder="Ej: Envía la constancia por WhatsApp.">${esc(m.nota)}</textarea>
+    <label class="row small" style="margin-top:10px"><input type="checkbox" name="activo" ${m.activo ? 'checked' : ''}> Activo (se muestra al cliente)</label>
+    <div class="row" style="margin-top:14px"><button type="button" class="btn ghost full" data-act="closeModal">Cancelar</button><button class="btn full">Guardar</button></div>
+    ${id ? `<button type="button" class="btn danger full" style="margin-top:8px" data-act="delMedio" data-id="${id}">Eliminar</button>` : ''}</form>`);
+  const f = $('form[data-form=medio]'), sync = () => f.querySelectorAll('[data-g]').forEach(g => g.style.display = g.dataset.g.split(' ').includes(f.tipo.value) ? '' : 'none');
+  f.tipo.onchange = sync; sync();
 }
 function modalProducto(id) {
-  const p = EMP.productos.find(x => x.id === id) || {id: '', nombre: '', categoria: '', tipo: 'producto', precio: '', stock: 10, emoji: '📦', descripcion: '', img: '', activo: true};
-  const cats = [...new Set(EMP.productos.map(x => x.categoria).filter(Boolean))];
+  const p = EMP.productos.find(x => x.id === id) || {id: '', codigo: '', nombre: '', familia: '', subfamilia: '', tipo: 'producto', precio: '', stock: 10, emoji: '📦', tipoLente: '', tratamientos: '', descripcion: '', img: '', activo: true};
+  const fams = [...new Set(EMP.productos.map(x => x.familia).filter(Boolean))], subs = [...new Set(EMP.productos.map(x => x.subfamilia).filter(Boolean))];
+  const lentes = [...new Set([...TIPOS_LENTE, ...EMP.productos.map(x => x.tipoLente).filter(Boolean)])];
+  const actuales = tratamientosDe(p), opcTrat = [...new Set([...TRATAMIENTOS, ...EMP.productos.flatMap(tratamientosDe)])];
+  const otros = actuales.filter(t => !opcTrat.includes(t));
   TMP_IMG = p.img;
   modal(`<h3>${id ? 'Editar' : 'Nuevo'} producto o servicio</h3><form data-form="producto" data-id="${p.id}" novalidate>
     <div class="row"><div class="thumb" id="pimg" style="width:80px;aspect-ratio:1;border-radius:12px;font-size:36px;flex:none">${imgHTML(p)}</div><div><input type="file" accept="image/*" data-change="prodImg" class="small"><br><button type="button" class="btn sm ghost" style="margin-top:6px" data-act="rmProdImg">Quitar foto</button></div></div>
+    <div class="two"><div><label class="f">Código</label><input class="in" name="codigo" value="${esc(p.codigo)}" maxlength="20" placeholder="Automático"><div class="err">Ese código ya existe.</div></div>
+    <div><label class="f">Tipo</label><select class="in" name="tipo"><option value="producto" ${p.tipo === 'producto' ? 'selected' : ''}>Producto</option><option value="servicio" ${p.tipo === 'servicio' ? 'selected' : ''}>Servicio</option></select></div></div>
     <label class="f">Nombre *</label><input class="in" name="nombre" value="${esc(p.nombre)}" maxlength="80"><div class="err">Mínimo 3 caracteres.</div>
-    <div class="two"><div><label class="f">Tipo</label><select class="in" name="tipo"><option value="producto" ${p.tipo === 'producto' ? 'selected' : ''}>Producto</option><option value="servicio" ${p.tipo === 'servicio' ? 'selected' : ''}>Servicio</option></select></div>
-    <div><label class="f">Categoría *</label><input class="in" name="categoria" list="dl-cat" value="${esc(p.categoria)}"><datalist id="dl-cat">${cats.map(c => `<option value="${esc(c)}">`).join('')}</datalist><div class="err">Obligatoria.</div></div></div>
+    <div class="two"><div><label class="f">Familia *</label><input class="in" name="familia" list="dl-fam" value="${esc(p.familia)}" placeholder="Ej: Monturas"><datalist id="dl-fam">${fams.map(c => `<option value="${esc(c)}">`).join('')}</datalist><div class="err">Obligatoria.</div></div>
+    <div><label class="f">Subfamilia</label><input class="in" name="subfamilia" list="dl-sub" value="${esc(p.subfamilia)}" placeholder="Ej: Acetato"><datalist id="dl-sub">${subs.map(c => `<option value="${esc(c)}">`).join('')}</datalist></div></div>
+    <label class="f">Tipo de lente</label><input class="in" name="tipoLente" list="dl-lente" value="${esc(p.tipoLente)}" placeholder="Opcional: Monofocal, Progresivo…"><datalist id="dl-lente">${lentes.map(c => `<option value="${esc(c)}">`).join('')}</datalist>
+    <label class="f">Tratamientos</label><div class="trats">${opcTrat.map(t => `<label class="chip"><input type="checkbox" name="trat" value="${esc(t)}" ${actuales.includes(t) ? 'checked' : ''}> ${esc(t)}</label>`).join('')}</div>
+    <input class="in" name="tratOtros" value="${esc(otros.join(', '))}" placeholder="Otros tratamientos, separados por coma" style="margin-top:6px">
     <div class="two"><div><label class="f">Precio (S/) *</label><input class="in" name="precio" type="number" min="0" step="0.1" value="${p.precio}"><div class="err">Mayor a 0.</div></div>
     <div id="stockbox"><label class="f">Stock *</label><input class="in" name="stock" type="number" min="0" step="1" value="${p.stock ?? 0}"><div class="err">Entero, 0 o más.</div></div></div>
     <label class="f">Ícono si no hay foto</label><input class="in" name="emoji" value="${esc(p.emoji)}" maxlength="4" style="width:90px">
@@ -682,8 +911,7 @@ const FORMS = {
     bad = marcar(f, 'email', v('email') && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v('email'))) || bad;
     if (bad) return toast('Revisa los campos marcados');
     Object.assign(EMP, {nombre: v('nombre'), eslogan: v('eslogan'), codigo: v('codigo').toUpperCase(), color: v('color'), slug, whatsapp: wa, telefono: v('telefono'), email: v('email'), direccion: v('direccion'), horario: v('horario'),
-      envio: {costo: Math.max(0, +v('envioCosto') || 0), gratisDesde: Math.max(0, +v('envioGratis') || 0)}, pagos: [...f.querySelectorAll('input[name=pagos]:checked')].map(x => x.value)});
-    if (!EMP.pagos.length) EMP.pagos = ['Contra entrega'];
+      envio: {costo: Math.max(0, +v('envioCosto') || 0), gratisDesde: Math.max(0, +v('envioGratis') || 0)}});
     REDES.forEach(r => EMP.redes[r] = v('red_' + r));
     if (MODE === 'local' && v('pin')) { if (!/^\d{4,8}$/.test(v('pin'))) return toast('El PIN debe tener de 4 a 8 dígitos'); DB.adminPin = v('pin'); }
     await guardarSeguro('Datos de la empresa guardados ✓'); aplicarTema(); render();
@@ -691,15 +919,36 @@ const FORMS = {
   async producto(f) {
     const id = f.dataset.id, v = k => (f.elements[k]?.value || '').trim();
     if (!id && EMP.productos.length >= MAX_PROD) return toast(`Límite de ${MAX_PROD} productos alcanzado`);
-    const tipo = v('tipo'); let bad = false;
+    const tipo = v('tipo'), cod = v('codigo'); let bad = false;
     bad = marcar(f, 'nombre', v('nombre').length < 3) || bad;
-    bad = marcar(f, 'categoria', !v('categoria')) || bad;
+    bad = marcar(f, 'familia', !v('familia')) || bad;
     bad = marcar(f, 'precio', !(+v('precio') > 0)) || bad;
     bad = marcar(f, 'stock', tipo === 'producto' && !(/^\d+$/.test(v('stock')))) || bad;
+    bad = marcar(f, 'codigo', cod && EMP.productos.some(p => p.id !== id && norm(p.codigo) === norm(cod))) || bad;
     if (bad) return toast('Revisa los campos marcados');
-    const data = {nombre: v('nombre'), categoria: v('categoria'), tipo, precio: r2(+v('precio')), stock: tipo === 'producto' ? parseInt(v('stock'), 10) : null, emoji: v('emoji') || '📦', descripcion: v('descripcion'), img: TMP_IMG || '', activo: f.activo.checked};
-    if (id) { const cur = EMP.productos.find(p => p.id === id); if (cur.stock !== data.stock) STOCK_EDIT.add(id); Object.assign(cur, data); } else EMP.productos.push({id: 'p' + uid(), ...data});
+    const trats = [...f.querySelectorAll('input[name=trat]:checked')].map(x => x.value).concat(tratamientosDe({tratamientos: v('tratOtros')}));
+    const data = {nombre: v('nombre'), familia: v('familia'), categoria: v('familia'), subfamilia: v('subfamilia'), tipoLente: v('tipoLente'), tratamientos: [...new Set(trats)].join(', '),
+      tipo, precio: r2(+v('precio')), stock: tipo === 'producto' ? parseInt(v('stock'), 10) : null, emoji: v('emoji') || '📦', descripcion: v('descripcion'), img: TMP_IMG || '', activo: f.activo.checked};
+    if (id) { const cur = EMP.productos.find(p => p.id === id); if (cur.stock !== data.stock) STOCK_EDIT.add(id); Object.assign(cur, data, {codigo: cod || cur.codigo}); }
+    else { const np = {id: 'p' + uid(), codigo: cod, ...data}; EMP.productos.push(np); normalizar(EMP); }
     modal(''); await guardarSeguro('Producto guardado ✓'); render();
+  },
+  async medio(f) {
+    const id = f.dataset.id, v = k => (f.elements[k]?.value || '').trim(), tipo = v('tipo');
+    const cci = v('cci').replace(/\D/g, ''); let bad = false;
+    bad = marcar(f, 'nombre', !v('nombre') || EMP.medios.some(m => m.id !== id && norm(m.nombre) === norm(v('nombre')))) || bad;
+    bad = marcar(f, 'numero', tipo === 'billetera' && !/^9\d{8}$/.test(v('numero').replace(/\D/g, ''))) || bad;
+    bad = marcar(f, 'banco', tipo === 'transferencia' && !v('banco')) || bad;
+    bad = marcar(f, 'cuenta', tipo === 'transferencia' && !v('cuenta')) || bad;
+    bad = marcar(f, 'cci', tipo === 'transferencia' && cci && cci.length !== 20) || bad;
+    if (bad) return toast('Revisa los campos marcados');
+    const data = {nombre: v('nombre'), tipo, numero: tipo === 'billetera' ? v('numero').replace(/\D/g, '') : '', titular: tipo === 'otro' ? '' : v('titular'),
+      banco: tipo === 'transferencia' ? v('banco') : '', tipoCuenta: tipo === 'transferencia' ? v('tipoCuenta') : '', cuenta: tipo === 'transferencia' ? v('cuenta') : '', cci: tipo === 'transferencia' ? cci : '',
+      nota: v('nota'), activo: f.activo.checked};
+    const otrosActivos = EMP.medios.some(m => m.id !== id && m.activo);
+    if (!data.activo && !otrosActivos) return toast('Debe quedar al menos un medio de pago activo');
+    if (id) Object.assign(EMP.medios.find(m => m.id === id), data); else EMP.medios.push(medioBase(data));
+    sincronizarPagos(EMP); modal(''); await guardarSeguro('Medio de pago guardado ✓'); render();
   },
   async promo(f) {
     const id = f.dataset.id, v = k => (f.elements[k]?.value || '').trim();
@@ -726,10 +975,28 @@ const ACT = {
   inc: b => { agregar(b.dataset.id, 1); render(); },
   dec: b => { const c = getCart(), it = c.find(x => x.id === b.dataset.id); if (it) { it.cant--; setCart(c.filter(x => x.cant > 0)); } render(); },
   rm: b => { setCart(getCart().filter(x => x.id !== b.dataset.id)); toast('Quitado del carrito'); render(); },
-  cat: b => { UI.cat = b.dataset.v; document.querySelectorAll('[data-act=cat]').forEach(x => x.classList.toggle('on', x === b)); pintarGrid(); },
+  limpiarFiltros: () => { Object.assign(UI, {q: '', tipo: 'todos', fam: '', sub: '', lente: '', trat: ''}); render(); },
+  buscar: () => {
+    modal(`<div class="row"><input class="search" id="qs" type="search" placeholder="¿Qué buscas? Ej: progresivo, luz azul, montura…" autocomplete="off" style="margin:0" aria-label="Búsqueda rápida"><button class="btn sm ghost" data-act="closeModal">Cerrar</button></div><div id="qsr" class="qsr"></div>`, 'top');
+    pintarQS(); setTimeout(() => $('#qs')?.focus(), 30);
+  },
+  qsTag: b => { $('#qs').value = b.dataset.v; pintarQS(); },
+  qsVerTodo: () => { Object.assign(UI, {q: $('#qs')?.value || '', tipo: 'todos', fam: '', sub: '', lente: '', trat: ''}); modal(''); if (location.hash === '#catalogo') render(); else location.hash = 'catalogo'; },
+  copyTxt: b => copiar(b.dataset.t),
+  editMedio: b => modalMedio(b.dataset.id),
+  delMedio: b => confirmar('¿Eliminar este medio de pago?', async () => {
+    if (!EMP.medios.some(m => m.id !== b.dataset.id && m.activo)) return toast('Debe quedar al menos un medio de pago activo');
+    EMP.medios = EMP.medios.filter(m => m.id !== b.dataset.id); sincronizarPagos(EMP); await guardarSeguro('Medio de pago eliminado'); render(); }),
+  exportXlsx: () => exportarExcel(),
+  aplicarImport: async b => {
+    const pl = planImport(b.dataset.modo); if (pl.total > MAX_PROD) return;
+    EMP.productos = pl.lista; const ids = new Set(pl.lista.map(p => p.id)); EMP.promos = EMP.promos.filter(pr => ids.has(pr.productoId));
+    pl.lista.forEach(p => { if (p.tipo === 'producto') STOCK_EDIT.add(p.id); });
+    modal(''); await guardarSeguro(`Importación lista: ${pl.nuevos} nuevos y ${pl.actualizados} actualizados ✓`); render();
+  },
   tipo: b => { UI.tipo = b.dataset.v; document.querySelectorAll('[data-act=tipo]').forEach(x => x.classList.toggle('on', x === b)); pintarGrid(); },
   copyMsg: b => { const p = (DB.pedidos || []).find(x => x.id === b.dataset.id) || LS.get('wl_ult_' + b.dataset.id); if (p) copiar(mensajePedido(p)); },
-  reload: async () => { if (MODE === 'api') { try { const j = await api('load'); if (j.empresas) { DB.empresas = j.empresas; EMP = DB.empresas.find(e => e.id === EMP.id) || DB.empresas[0]; } } catch (e) {} await cargarPedidosAdmin(); } render(); toast('Actualizado'); },
+  reload: async () => { if (MODE === 'api') { try { const j = await api('load'); if (j.empresas) { DB.empresas = j.empresas.map(normalizar); EMP = DB.empresas.find(e => e.id === EMP.id) || DB.empresas[0]; } } catch (e) {} await cargarPedidosAdmin(); } render(); toast('Actualizado'); },
   closeModal: () => modal(''),
   closeModalBg: (b, e) => { if (e.target === b) modal(''); },
   admTab: async b => { ADMIN.tab = b.dataset.v; if (ADMIN.tab === 'pedidos' || ADMIN.tab === 'resumen') await cargarPedidosAdmin(); render(); },
@@ -741,14 +1008,22 @@ const ACT = {
   rmLogo: async () => { EMP.logo = ''; await guardarSeguro('Logo eliminado'); render(); },
   delProd: b => confirmar('¿Eliminar este producto? También se eliminarán sus promociones.', async () => { EMP.productos = EMP.productos.filter(p => p.id !== b.dataset.id); EMP.promos = EMP.promos.filter(p => p.productoId !== b.dataset.id); await guardarSeguro('Producto eliminado'); render(); }),
   delPromo: b => confirmar('¿Eliminar esta promoción?', async () => { EMP.promos = EMP.promos.filter(p => p.id !== b.dataset.id); await guardarSeguro('Promoción eliminada'); render(); }),
-  newEmp: async () => { const e = empresaBase(); e.slug = 'empresa-' + (DB.empresas.length + 1); DB.empresas.push(e); EMP = e; LS.set('wl_emp', e.id); ADMIN.tab = 'empresa'; aplicarTema(); await guardarSeguro('Empresa creada: completa sus datos'); render(); },
+  newEmp: async () => { const e = normalizar(empresaBase()); e.slug = 'empresa-' + (DB.empresas.length + 1); DB.empresas.push(e); EMP = e; LS.set('wl_emp', e.id); ADMIN.tab = 'empresa'; aplicarTema(); await guardarSeguro('Empresa creada: completa sus datos'); render(); },
   delEmp: () => confirmar(`¿Eliminar la empresa "${EMP.nombre}" con su catálogo?`, async () => { DB.empresas = DB.empresas.filter(e => e.id !== EMP.id); EMP = DB.empresas[0]; LS.set('wl_emp', EMP.id); aplicarTema(); ADMIN.tab = 'resumen'; await guardarSeguro('Empresa eliminada'); render(); })
 };
 const CHANGE = {
+  fFam(el) { UI.fam = el.value; UI.sub = ''; render(); },
+  fSub(el) { UI.sub = el.value; pintarGrid(); },
+  fLente(el) { UI.lente = el.value; pintarGrid(); },
+  fTrat(el) { UI.trat = el.value; pintarGrid(); },
+  ubDep(el) { const f = el.form, d = el.value; f.prov.innerHTML = ubOpts(d ? ubDep(d)[2] : [], '', 'Provincia'); f.prov.disabled = !d; f.dist.innerHTML = ubOpts([], '', 'Distrito'); f.dist.disabled = true; },
+  ubProv(el) { const f = el.form, p = el.value; f.dist.innerHTML = ubOpts(p ? ubProv(f.dep.value, p)[2] : [], '', 'Distrito'); f.dist.disabled = !p; },
+  modoImport(el) { modalImport(el.value); },
+  async importXlsx(el) { const file = el.files[0]; el.value = ''; if (!file) return; toast('Leyendo Excel…'); try { await leerExcel(file); } catch (e) { toast(e.message || 'No se pudo leer el archivo'); } },
   async estado(el) {
     const id = el.dataset.id, estado = el.value;
     try {
-      if (MODE === 'api') { await api('setStatus', {pin: ADMIN.pin, id, estado}); await cargarPedidosAdmin(); const j = await api('load'); if (j.empresas) { DB.empresas = j.empresas; EMP = DB.empresas.find(e => e.id === EMP.id); } }
+      if (MODE === 'api') { await api('setStatus', {pin: ADMIN.pin, id, estado}); await cargarPedidosAdmin(); const j = await api('load'); if (j.empresas) { DB.empresas = j.empresas.map(normalizar); EMP = DB.empresas.find(e => e.id === EMP.id); } }
       else {
         const p = DB.pedidos.find(x => x.id === id);
         if (estado === 'Cancelado' && p.estado !== 'Cancelado') p.lineas.forEach(l => { const pr = EMP.productos.find(x => x.id === l.id); if (pr && pr.tipo === 'producto') pr.stock += l.cant; });
@@ -764,8 +1039,17 @@ const CHANGE = {
 };
 document.addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b && ACT[b.dataset.act]) { if (b.tagName === 'BUTTON') e.preventDefault(); ACT[b.dataset.act](b, e); } });
 document.addEventListener('submit', e => { e.preventDefault(); const f = e.target; FORMS[f.dataset.form]?.(f); });
-document.addEventListener('change', e => { const el = e.target; if (el.dataset.change && CHANGE[el.dataset.change]) CHANGE[el.dataset.change](el); if (el.name === 'entrega') pintarTotales(); if (el.classList.contains('bad')) el.classList.remove('bad'); });
-document.addEventListener('input', e => { if (e.target.id === 'q') { UI.q = e.target.value; pintarGrid(); } });
+document.addEventListener('change', e => { const el = e.target; if (el.dataset.change && CHANGE[el.dataset.change]) CHANGE[el.dataset.change](el); if (el.name === 'entrega') pintarTotales(); if (el.name === 'pago') pintarPagoInfo(); if (el.classList.contains('bad')) el.classList.remove('bad'); });
+document.addEventListener('input', e => { if (e.target.id === 'q') { UI.q = e.target.value; pintarGrid(); } if (e.target.id === 'qs') pintarQS(); });
+document.addEventListener('keydown', e => { if (e.target.id === 'qs' && e.key === 'Enter') { e.preventDefault(); ACT.qsVerTodo(); } });
+function pintarQS() {
+  const box = $('#qsr'); if (!box) return;
+  const raw = $('#qs')?.value || '', q = norm(raw).trim();
+  if (!q) { box.innerHTML = `<div class="small muted" style="margin:14px 2px 8px">Búsquedas sugeridas</div><div class="tags">${[...familias(), ...tiposLente(), ...tratamientosTodos()].slice(0, 12).map(t => `<button class="chip" data-act="qsTag" data-v="${esc(t)}">${esc(t)}</button>`).join('')}</div>`; return; }
+  const l = productosVisibles().filter(p => coincide(p, q));
+  box.innerHTML = l.length ? l.slice(0, 12).map(p => `<a class="adm-item" href="#producto-${p.id}"><div class="thumb">${imgHTML(p)}</div><div class="grow"><div class="t">${esc(p.nombre)}</div><div class="small muted">${famTxt(p)}</div></div><b class="small" style="color:var(--brand)">${money(precioFinal(EMP, p))}</b></a>`).join('')
+    + `<button class="btn ghost full" style="margin-top:10px" data-act="qsVerTodo">Ver ${l.length} resultado(s) en el catálogo</button>` : `<div class="empty" style="padding:24px">Sin resultados para "${esc(raw)}"</div>`;
+}
 
 /* ---------- router ---------- */
 async function render() {
@@ -787,7 +1071,7 @@ async function render() {
   }
   if (html) app.innerHTML = html;
   if (v === 'catalogo') pintarGrid();
-  if (v === 'checkout') pintarTotales();
+  if (v === 'checkout') { pintarTotales(); pintarPagoInfo(); }
 }
 let ultimaVista = '';
 window.addEventListener('hashchange', () => { modal(''); render().then(() => { const v = location.hash; if (v !== ultimaVista) window.scrollTo(0, 0); ultimaVista = v; }); });
@@ -795,6 +1079,7 @@ window.addEventListener('hashchange', () => { modal(''); render().then(() => { c
 (async function init() {
   DB = await cargarDB();
   if (!DB.pedidos) DB.pedidos = [];
+  DB.empresas.forEach(normalizar);
   elegirEmpresa();
   await render();
   if (MODE === 'api' && 'serviceWorker' in navigator) { try { navigator.serviceWorker.register('sw.js'); } catch (e) {} }

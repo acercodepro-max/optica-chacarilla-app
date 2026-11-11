@@ -41,3 +41,13 @@ el cliente ve el estado en "Mis pedidos".
 
 ## Respaldo
 Todos los datos están en `data/db.json`. Inclúyelo en tus backups de cPanel/JetBackup.
+
+## Novedades v2
+- **Catálogo por Familia › Subfamilia**, con filtros desplegables por familia, subfamilia, tipo de lente y tratamiento.
+- **Búsqueda rápida** (botón 🔍 arriba): busca sin importar tildes por nombre, código, familia, tipo de lente o tratamiento.
+- **Importar productos desde Excel**: Panel → Productos → "⬆ Importar Excel". Usa `plantilla-productos.xlsx`. Modos: *Actualizar y agregar* (por código) o *Reemplazar todo*. Antes de aplicar muestra nuevos, actualizados y filas con error. También permite "⬇ Exportar catálogo".
+- **Medios de pago configurables**: Panel → Empresa → Medios de pago. Billeteras (Yape/Plin: número y titular), transferencias (banco, tipo de cuenta, N° de cuenta, CCI de 20 dígitos y titular) u otros. El cliente los ve al pagar, en la confirmación y en Contacto.
+- **Ubigeo obligatorio** en el pedido (departamento → provincia → distrito, 1 893 distritos), junto con nombre, teléfono y dirección. El servidor también lo valida.
+- Los datos guardados con la versión anterior se migran solos (categoría → familia; medios de pago desde la lista anterior).
+
+Licencias de terceros: SheetJS (`vendor/xlsx.full.min.js`, Apache-2.0) y datos de ubigeo del paquete npm `peru-ubigeo` (MIT).

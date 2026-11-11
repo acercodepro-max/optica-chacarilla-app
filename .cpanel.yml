@@ -4,8 +4,9 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/chacarilla/public_html/app.opticachacarilla.com
-    - /bin/mkdir -p $DEPLOYPATH/data
-    - /bin/cp index.html api.php manifest.json sw.js icon-192.png icon-512.png .htaccess $DEPLOYPATH/
+    - /bin/mkdir -p $DEPLOYPATH/data $DEPLOYPATH/vendor
+    - /bin/cp index.html api.php manifest.json sw.js icon-192.png icon-512.png .htaccess plantilla-productos.xlsx $DEPLOYPATH/
+    - /bin/cp vendor/xlsx.full.min.js vendor/LICENSE-xlsx.txt $DEPLOYPATH/vendor/
     - /bin/cp data/.htaccess $DEPLOYPATH/data/
     # config.php (tu PIN) y data/db.json (tus productos y pedidos) nunca se sobrescriben
     - /bin/sh -c "[ -f $DEPLOYPATH/config.php ] || /bin/cp config.example.php $DEPLOYPATH/config.php"
