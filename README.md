@@ -1,11 +1,11 @@
 # Óptica Chacarilla App – Instalación en cPanel (WHM)
 
-Ruta recomendada: /home/USUARIO/app.opticachacarilla.com/  →  https://app.opticachacarilla.com/?e=opticachacarilla
+Ruta recomendada: /home/chacarilla/public_html/app.opticachacarilla.com/  →  https://app.opticachacarilla.com/?e=opticachacarilla
 Antes de publicar: cambia el PIN en config.php y, en el panel, el WhatsApp (viene 51999999999), dirección, teléfono, redes y fotos.
 
 ## Instalación con GitHub (recomendada)
-1. En `.cpanel.yml`, cambia `USUARIO` por tu usuario de cPanel y haz commit.
-2. En cPanel → **Git Version Control → Create**, pega la URL del repositorio en "Clone URL". Para un repo privado, primero agrega la clave SSH de cPanel como *Deploy key* en GitHub. Usa como ruta del repositorio `/home/USUARIO/repositories/optica-chacarilla-app`.
+1. `.cpanel.yml` ya apunta a `/home/chacarilla/public_html/app.opticachacarilla.com`.
+2. En cPanel → **Git Version Control → Create**, pega la URL del repositorio en "Clone URL". Para un repo privado, primero agrega la clave SSH de cPanel como *Deploy key* en GitHub. Usa como ruta del repositorio `/home/chacarilla/repositories/optica-chacarilla-app`.
 3. En **Manage → Pull or Deploy**, pulsa **Deploy HEAD Commit**. Se copian los archivos a `app.opticachacarilla.com`.
 4. La primera vez, edita `config.php` en el servidor y cambia el PIN. Los despliegues siguientes no lo tocan, y tampoco tocan tus datos.
 5. Para cada actualización: **Update from Remote** y luego **Deploy HEAD Commit**.

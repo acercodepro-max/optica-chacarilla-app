@@ -1,9 +1,9 @@
 ---
 # Despliegue automático desde cPanel → Git Version Control → "Deploy HEAD Commit"
-# Cambia USUARIO por tu usuario de cPanel.
+# Usuario cPanel: chacarilla
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/USUARIO/app.opticachacarilla.com
+    - export DEPLOYPATH=/home/chacarilla/public_html/app.opticachacarilla.com
     - /bin/mkdir -p $DEPLOYPATH/data
     - /bin/cp index.html api.php manifest.json sw.js icon-192.png icon-512.png .htaccess $DEPLOYPATH/
     - /bin/cp data/.htaccess $DEPLOYPATH/data/
