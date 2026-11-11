@@ -350,7 +350,13 @@ function socialHTML(conWa = true) {
   if (!items.length) return '';
   return `<div class="social">${items.map(([r, u]) => `<a class="s-${r}" href="${esc(u)}" target="_blank" rel="noopener" aria-label="${NOMBRE_RED[r]}" title="${NOMBRE_RED[r]}"><svg viewBox="0 0 24 24" aria-hidden="true">${ICON[r]}</svg></a>`).join('')}</div>`;
 }
-const waLink = (txt, num = EMP.whatsapp) => 'https://wa.me/' + String(num).replace(/\D/g, '') + '?text=' + encodeURIComponent(txt);
+/* Acepta 921208614, +51 921 208 614 o 51921208614 → 51921208614 */
+const waNum = n => { let d = String(n || '').replace(/\D/g, ''); if (/^9\d{8}$/.test(d)) d = '51' + d; return d; };
+const esMovil = () => /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+/* Celular: abre la app de WhatsApp. Computadora: abre WhatsApp Web directo, sin página intermedia */
+const waLink = (txt, num = EMP.whatsapp) => esMovil()
+  ? 'https://wa.me/' + waNum(num) + '?text=' + encodeURIComponent(txt)
+  : 'https://web.whatsapp.com/send?phone=' + waNum(num) + '&text=' + encodeURIComponent(txt);
 function logoHTML(e, xl = false) { return `<span class="logo${xl ? ' xl' : ''}">${e.logo ? `<img src="${esc(e.logo)}" alt="Logo ${esc(e.nombre)}">` : esc((e.codigo || e.nombre || '?').slice(0, 2).toUpperCase())}</span>`; }
 const imgHTML = p => p.img ? `<img src="${esc(p.img)}" alt="${esc(p.nombre)}" loading="lazy">` : `<span aria-hidden="true">${esc(p.emoji || '📦')}</span>`;
 
@@ -796,7 +802,8 @@ function admEmpresa() {
     <label class="f">Enlace corto (slug) *</label><input class="in" name="slug" value="${esc(e.slug)}" placeholder="mi-empresa"><div class="err">Solo minúsculas, números y guiones; debe ser único.</div>
     <div class="small muted">Tu cliente abrirá: tudominio.com/?e=<b>${esc(e.slug || 'mi-empresa')}</b></div>
     <hr><b>Contacto</b>
-    <label class="f">WhatsApp de ventas * (con código de país)</label><input class="in" name="whatsapp" value="${esc(e.whatsapp)}" inputmode="numeric" placeholder="51987654321"><div class="err">Ej.: 51987654321 (11 a 13 dígitos).</div>
+    <label class="f">WhatsApp de ventas *</label><input class="in" name="whatsapp" value="${esc(e.whatsapp)}" inputmode="tel" placeholder="921208614 o +51 921 208 614"><div class="err">Escribe tu celular de 9 dígitos (ej. 921208614) o con código de país.</div>
+    <div class="small muted">Se guarda como +51 y el número. Prueba el botón "Probar WhatsApp" después de guardar.</div>
     <label class="f">Teléfono</label><input class="in" name="telefono" value="${esc(e.telefono)}">
     <label class="f">Correo</label><input class="in" name="email" value="${esc(e.email)}"><div class="err">Correo no válido.</div>
     <label class="f">Dirección</label><input class="in" name="direccion" value="${esc(e.direccion)}">
@@ -807,6 +814,7 @@ function admEmpresa() {
     ${REDES.map(r => `<label class="f">${NOMBRE_RED[r]}</label><input class="in" name="red_${r}" value="${esc(e.redes[r])}" placeholder="@usuario">`).join('')}
     ${MODE === 'local' ? `<hr><label class="f">PIN del panel</label><input class="in" name="pin" type="password" inputmode="numeric" placeholder="Dejar vacío para no cambiar">` : ''}
     <button class="btn full" style="margin-top:16px">Guardar datos</button>
+    ${e.whatsapp ? `<a class="btn wa full" style="margin-top:8px" id="probar-wa" href="${waLink('Prueba desde el panel de ' + e.nombre, e.whatsapp)}" target="_blank" rel="noopener">Probar WhatsApp (+${esc(e.whatsapp)})</a>` : ''}
     ${DB.empresas.length > 1 ? '<button type="button" class="btn danger full" style="margin-top:8px" data-act="delEmp">Eliminar esta empresa</button>' : ''}</form>${admMedios()}`;
 }
 function admMedios() {
@@ -902,7 +910,7 @@ const FORMS = {
   },
   async empresa(f) {
     const v = k => (f.elements[k]?.value || '').trim();
-    const wa = v('whatsapp').replace(/\D/g, ''), slug = v('slug').toLowerCase();
+    const wa = waNum(v('whatsapp')), slug = v('slug').toLowerCase();
     let bad = false;
     bad = marcar(f, 'nombre', v('nombre').length < 2) || bad;
     bad = marcar(f, 'codigo', !/^[A-Za-z]{2,4}$/.test(v('codigo'))) || bad;
@@ -914,7 +922,7 @@ const FORMS = {
       envio: {costo: Math.max(0, +v('envioCosto') || 0), gratisDesde: Math.max(0, +v('envioGratis') || 0)}});
     REDES.forEach(r => EMP.redes[r] = v('red_' + r));
     if (MODE === 'local' && v('pin')) { if (!/^\d{4,8}$/.test(v('pin'))) return toast('El PIN debe tener de 4 a 8 dígitos'); DB.adminPin = v('pin'); }
-    await guardarSeguro('Datos de la empresa guardados ✓'); aplicarTema(); render();
+    await guardarSeguro('Datos guardados ✓ WhatsApp: +' + wa); aplicarTema(); render();
   },
   async producto(f) {
     const id = f.dataset.id, v = k => (f.elements[k]?.value || '').trim();
