@@ -122,6 +122,8 @@ hr{border:0;border-top:1px solid var(--line);margin:14px 0}
 .modal-bg.top{align-items:flex-start}.modal-bg.top .modal{border-radius:0 0 18px 18px;max-height:85vh}
 .qsr .adm-item{border-bottom:1px solid var(--line)}
 .ubi{display:grid;gap:8px}
+.editando{padding:10px 12px;margin-bottom:12px;border-left:4px solid var(--brand)}
+.emp-card.sel{border:2px solid var(--brand)}
 .trats{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}.trats label{font-size:12.5px}
 </style>
 </head>
@@ -653,11 +655,32 @@ function admLayout(body) {
 function vAdmin() {
   if (!ADMIN.on) return admLayout(`<div class="card" style="padding:18px;margin-top:20px"><h1>Ingreso de la empresa</h1><p class="muted small">Administra tu logo, datos, catálogo, promociones y pedidos.${MODE === 'local' ? ' PIN de demostración: <b>1234</b>' : ''}</p>
     <form data-form="login"><label class="f" for="pin">PIN</label><input class="in" id="pin" name="pin" type="password" inputmode="numeric" autocomplete="current-password"><button class="btn full" style="margin-top:14px">Ingresar</button></form></div>`);
-  const tabs = [['resumen','📊 Resumen'],['pedidos','📦 Pedidos'],['productos','🛍️ Productos'],['promos','🏷️ Promos'],['empresa','🏢 Empresa']];
-  const sel = DB.empresas.length > 1 || true ? `<div class="row" style="margin-bottom:12px"><select class="in" data-change="empresa" aria-label="Empresa">${DB.empresas.map(e => `<option value="${e.id}" ${e.id === EMP.id ? 'selected' : ''}>${esc(e.nombre)}</option>`).join('')}</select><button class="btn sm ghost" data-act="newEmp">+ Empresa</button></div>` : '';
-  const body = {resumen: admResumen, pedidos: admPedidos, productos: admProductos, promos: admPromos, empresa: admEmpresa}[ADMIN.tab]();
-  return admLayout(`${sel}<div class="tabs">${tabs.map(t => `<button class="${ADMIN.tab === t[0] ? 'on' : ''}" data-act="admTab" data-v="${t[0]}">${t[1]}</button>`).join('')}</div>${body}
-    <a class="btn ghost full" style="margin-top:18px" href="#inicio" data-act="verTienda">👁️ Ver la app como cliente</a>`);
+  const tabs = [['empresas','🏬 Empresas'],['resumen','📊 Resumen'],['pedidos','📦 Pedidos'],['productos','🛍️ Productos'],['promos','🏷️ Promos'],['empresa','⚙️ Datos']];
+  const actual = `<div class="card editando"><div class="row">${logoHTML(EMP)}<div class="grow" style="min-width:0"><div class="small muted">Editando la empresa</div>
+      <div class="t" id="emp-actual" style="font-weight:800">${esc(EMP.nombre)}</div><div class="small muted">/?e=${esc(EMP.slug)}</div></div>
+      ${DB.empresas.length > 1 ? `<button class="btn sm ghost" data-act="admTab" data-v="empresas">Cambiar (${DB.empresas.length})</button>` : ''}</div></div>`;
+  const body = {empresas: admEmpresas, resumen: admResumen, pedidos: admPedidos, productos: admProductos, promos: admPromos, empresa: admEmpresa}[ADMIN.tab]();
+  return admLayout(`${actual}<div class="tabs">${tabs.map(t => `<button class="${ADMIN.tab === t[0] ? 'on' : ''}" data-act="admTab" data-v="${t[0]}">${t[1]}</button>`).join('')}</div>${body}
+    <a class="btn ghost full" style="margin-top:18px" href="${tiendaURL(EMP)}" data-act="verTienda">👁️ Ver la app como cliente</a>`);
+}
+/* URL pública de una empresa: en el servidor usa ?e=slug; en la demo cambia la empresa activa */
+const tiendaURL = e => MODE === 'api' ? location.pathname + '?e=' + encodeURIComponent(e.slug) + '#inicio' : '#inicio';
+function admEmpresas() {
+  const q = norm(ADMIN.qEmp || '').trim();
+  const todos = MODE === 'api' ? ADMIN.pedidos : DB.pedidos;
+  const lista = DB.empresas.filter(e => !q || norm([e.nombre, e.slug, e.whatsapp, e.codigo, e.direccion].join(' ')).includes(q));
+  return `<div class="row between" style="margin-bottom:10px"><span class="limit">${DB.empresas.length} empresa(s)</span><button class="btn sm" data-act="newEmp">+ Nueva empresa</button></div>
+    <input class="search" id="q-emp" type="search" placeholder="Filtrar por nombre, enlace o WhatsApp…" value="${esc(ADMIN.qEmp || '')}" aria-label="Filtrar empresas">
+    <div id="lista-emp" class="stack">${lista.length ? lista.map(e => {
+      const ped = todos.filter(p => p.empresaId === e.id).length, sinWa = !e.whatsapp || e.whatsapp === '51999999999';
+      return `<div class="card emp-card ${e.id === EMP.id ? 'sel' : ''}" style="padding:12px" data-emp="${e.id}"><div class="row">${logoHTML(e)}<div class="grow" style="min-width:0">
+        <div class="t" style="font-weight:700">${esc(e.nombre)} ${e.id === EMP.id ? '<span class="status st-Pagado">editando</span>' : ''}</div>
+        <div class="small muted">/?e=${esc(e.slug)} · código ${esc(e.codigo)}</div>
+        <div class="small" style="margin-top:2px">${e.productos.length} productos · ${e.promos.length} promos · ${ped} pedidos · ${sinWa ? '<b style="color:var(--bad)">falta WhatsApp</b>' : 'WhatsApp +' + esc(e.whatsapp)}</div></div></div>
+        <div class="row wrap" style="gap:6px;margin-top:10px"><button class="btn sm" data-act="selEmp" data-id="${e.id}">✏️ Editar</button>
+        <a class="btn sm ghost" href="${tiendaURL(e)}" data-act="verTiendaDe" data-id="${e.id}">👁️ Ver tienda</a>
+        ${DB.empresas.length > 1 ? `<button class="btn sm danger" data-act="delEmpId" data-id="${e.id}">Eliminar</button>` : ''}</div></div>`; }).join('')
+      : '<div class="empty">No hay empresas con ese filtro.</div>'}</div>`;
 }
 const pedidosEmpresa = () => (MODE === 'api' ? ADMIN.pedidos : DB.pedidos).filter(p => p.empresaId === EMP.id);
 function admResumen() {
@@ -899,7 +922,7 @@ const FORMS = {
     try {
       const ok = MODE === 'api' ? (await api('login', {pin})).ok : pin === String(DB.adminPin || '1234');
       if (!ok) return toast('PIN incorrecto');
-      ADMIN.on = true; ADMIN.pin = pin; await cargarPedidosAdmin(); ADMIN.tab = 'resumen'; render();
+      ADMIN.on = true; ADMIN.pin = pin; await cargarPedidosAdmin(); ADMIN.tab = DB.empresas.length > 1 ? 'empresas' : 'resumen'; render();
     } catch (e) { toast(e.message); }
   },
   async checkout(f) {
@@ -940,6 +963,15 @@ const FORMS = {
     if (id) { const cur = EMP.productos.find(p => p.id === id); if (cur.stock !== data.stock) STOCK_EDIT.add(id); Object.assign(cur, data, {codigo: cod || cur.codigo}); }
     else { const np = {id: 'p' + uid(), codigo: cod, ...data}; EMP.productos.push(np); normalizar(EMP); }
     modal(''); await guardarSeguro('Producto guardado ✓'); render();
+  },
+  async nuevaEmp(f) {
+    const nombre = f.nombre.value.trim(), slug = f.slug.value.trim().toLowerCase(); let bad = false;
+    bad = marcar(f, 'nombre', nombre.length < 2) || bad;
+    bad = marcar(f, 'slug', !/^[a-z0-9-]{2,40}$/.test(slug) || DB.empresas.some(e => e.slug === slug)) || bad;
+    if (bad) return toast('Revisa los campos marcados');
+    const e = normalizar(empresaBase({nombre, slug, codigo: ((norm(nombre).match(/\b[a-z]/g) || []).join('').slice(0, 3) || 'EM').toUpperCase()}));
+    DB.empresas.push(e); EMP = e; LS.set('wl_emp', e.id); ADMIN.tab = 'empresa'; aplicarTema(); modal('');
+    await guardarSeguro('Empresa creada: completa sus datos'); render();
   },
   async medio(f) {
     const id = f.dataset.id, v = k => (f.elements[k]?.value || '').trim(), tipo = v('tipo');
@@ -1007,7 +1039,7 @@ const ACT = {
   reload: async () => { if (MODE === 'api') { try { const j = await api('load'); if (j.empresas) { DB.empresas = j.empresas.map(normalizar); EMP = DB.empresas.find(e => e.id === EMP.id) || DB.empresas[0]; } } catch (e) {} await cargarPedidosAdmin(); } render(); toast('Actualizado'); },
   closeModal: () => modal(''),
   closeModalBg: (b, e) => { if (e.target === b) modal(''); },
-  admTab: async b => { ADMIN.tab = b.dataset.v; if (ADMIN.tab === 'pedidos' || ADMIN.tab === 'resumen') await cargarPedidosAdmin(); render(); },
+  admTab: async b => { ADMIN.tab = b.dataset.v; if (['pedidos', 'resumen', 'empresas'].includes(ADMIN.tab)) await cargarPedidosAdmin(); render(); },
   logout: () => { ADMIN.on = false; ADMIN.pin = ''; render(); },
   verTienda: () => LS.set('wl_emp', EMP.id),
   editProd: b => modalProducto(b.dataset.id),
@@ -1016,7 +1048,19 @@ const ACT = {
   rmLogo: async () => { EMP.logo = ''; await guardarSeguro('Logo eliminado'); render(); },
   delProd: b => confirmar('¿Eliminar este producto? También se eliminarán sus promociones.', async () => { EMP.productos = EMP.productos.filter(p => p.id !== b.dataset.id); EMP.promos = EMP.promos.filter(p => p.productoId !== b.dataset.id); await guardarSeguro('Producto eliminado'); render(); }),
   delPromo: b => confirmar('¿Eliminar esta promoción?', async () => { EMP.promos = EMP.promos.filter(p => p.id !== b.dataset.id); await guardarSeguro('Promoción eliminada'); render(); }),
-  newEmp: async () => { const e = normalizar(empresaBase()); e.slug = 'empresa-' + (DB.empresas.length + 1); DB.empresas.push(e); EMP = e; LS.set('wl_emp', e.id); ADMIN.tab = 'empresa'; aplicarTema(); await guardarSeguro('Empresa creada: completa sus datos'); render(); },
+  newEmp: () => {
+    modal(`<h3>Nueva empresa</h3><form data-form="nuevaEmp" novalidate>
+      <label class="f">Nombre comercial *</label><input class="in" name="nombre" maxlength="60" placeholder="Ej: Ferretería Los Andes"><div class="err">Mínimo 2 caracteres.</div>
+      <label class="f">Enlace corto (slug) *</label><input class="in" name="slug" maxlength="40" placeholder="ferreteria-los-andes"><div class="err">Solo minúsculas, números y guiones; no debe repetirse.</div>
+      <div class="small muted">La tienda se abrirá en /?e=enlace. Luego completas logo, WhatsApp y catálogo.</div>
+      <div class="row" style="margin-top:14px"><button type="button" class="btn ghost full" data-act="closeModal">Cancelar</button><button class="btn full">Crear empresa</button></div></form>`);
+    const f = $('form[data-form=nuevaEmp]'); f.nombre.oninput = () => { f.slug.value = norm(f.nombre.value).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40); };
+  },
+  selEmp: b => { EMP = DB.empresas.find(e => e.id === b.dataset.id); LS.set('wl_emp', EMP.id); aplicarTema(); ADMIN.tab = 'empresa'; render(); toast('Editando: ' + EMP.nombre); },
+  verTiendaDe: b => LS.set('wl_emp', b.dataset.id),
+  delEmpId: b => { const e = DB.empresas.find(x => x.id === b.dataset.id); confirmar(`¿Eliminar la empresa "${e.nombre}" con sus ${e.productos.length} productos? No se puede deshacer.`, async () => {
+    DB.empresas = DB.empresas.filter(x => x.id !== e.id); if (EMP.id === e.id) { EMP = DB.empresas[0]; LS.set('wl_emp', EMP.id); aplicarTema(); }
+    await guardarSeguro('Empresa eliminada'); render(); }); },
   delEmp: () => confirmar(`¿Eliminar la empresa "${EMP.nombre}" con su catálogo?`, async () => { DB.empresas = DB.empresas.filter(e => e.id !== EMP.id); EMP = DB.empresas[0]; LS.set('wl_emp', EMP.id); aplicarTema(); ADMIN.tab = 'resumen'; await guardarSeguro('Empresa eliminada'); render(); })
 };
 const CHANGE = {
@@ -1048,7 +1092,7 @@ const CHANGE = {
 document.addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b && ACT[b.dataset.act]) { if (b.tagName === 'BUTTON') e.preventDefault(); ACT[b.dataset.act](b, e); } });
 document.addEventListener('submit', e => { e.preventDefault(); const f = e.target; FORMS[f.dataset.form]?.(f); });
 document.addEventListener('change', e => { const el = e.target; if (el.dataset.change && CHANGE[el.dataset.change]) CHANGE[el.dataset.change](el); if (el.name === 'entrega') pintarTotales(); if (el.name === 'pago') pintarPagoInfo(); if (el.classList.contains('bad')) el.classList.remove('bad'); });
-document.addEventListener('input', e => { if (e.target.id === 'q') { UI.q = e.target.value; pintarGrid(); } if (e.target.id === 'qs') pintarQS(); });
+document.addEventListener('input', e => { if (e.target.id === 'q') { UI.q = e.target.value; pintarGrid(); } if (e.target.id === 'qs') pintarQS(); if (e.target.id === 'q-emp') { ADMIN.qEmp = e.target.value; const v = e.target.selectionStart; render(); const i = $('#q-emp'); if (i) { i.focus(); i.setSelectionRange(v, v); } } });
 document.addEventListener('keydown', e => { if (e.target.id === 'qs' && e.key === 'Enter') { e.preventDefault(); ACT.qsVerTodo(); } });
 function pintarQS() {
   const box = $('#qsr'); if (!box) return;
