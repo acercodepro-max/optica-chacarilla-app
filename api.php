@@ -32,8 +32,35 @@ function escribir(string $f, array $d): void {
   if (file_put_contents($tmp, json_encode($d, JSON_UNESCAPED_UNICODE)) === false) fail('No se pudo escribir en data/. Revisa permisos.', 500);
   rename($tmp, $f);
 }
-function auth(array $cfg, array $in): void {
-  if (!hash_equals((string)$cfg['pin'], (string)($in['pin'] ?? ''))) { usleep(400000); fail('PIN incorrecto', 401); }
+/* ---- acceso al panel: PIN robusto + límite de intentos por IP ---- */
+const PIN_MIN = 8;           // largo mínimo del PIN en config.php
+const MAX_FALLOS = 5;        // intentos fallidos permitidos…
+const VENTANA = 900;         // …dentro de 15 minutos; luego se bloquea 15 minutos
+function ipCliente(): string { return hash('sha256', (string)($_SERVER['REMOTE_ADDR'] ?? 'x')); }
+function intentosLeer(string $dir): array { $d = leer($dir . '/intentos.json'); return $d ?? []; }
+function intentosGuardar(string $dir, array $d): void {
+  $ahora = time();
+  foreach ($d as $k => $v) if (($v['desde'] ?? 0) < $ahora - VENTANA) unset($d[$k]); // limpia registros viejos
+  escribir($dir . '/intentos.json', $d);
+}
+function pinValido(array $cfg, array $in, string $dir): bool {
+  $pin = (string)$cfg['pin'];
+  if (strlen($pin) < PIN_MIN || $pin === '1234' || ctype_digit($pin) && strlen(count_chars($pin, 3)) === 1)
+    fail('Por seguridad, cambia el PIN en config.php por uno de al menos ' . PIN_MIN . ' caracteres.', 403);
+  $ip = ipCliente(); $reg = intentosLeer($dir); $ahora = time();
+  $r = $reg[$ip] ?? ['fallos' => 0, 'desde' => $ahora];
+  if ($r['desde'] < $ahora - VENTANA) $r = ['fallos' => 0, 'desde' => $ahora];
+  if ($r['fallos'] >= MAX_FALLOS) fail('Demasiados intentos. Vuelve a intentarlo en 15 minutos.', 429);
+  if (hash_equals($pin, (string)($in['pin'] ?? ''))) {
+    if (isset($reg[$ip])) { unset($reg[$ip]); intentosGuardar($dir, $reg); }
+    return true;
+  }
+  $r['fallos']++; $reg[$ip] = $r; intentosGuardar($dir, $reg);
+  usleep(800000);
+  return false;
+}
+function auth(array $cfg, array $in, string $dir): void {
+  if (!pinValido($cfg, $in, $dir)) fail('PIN incorrecto', 401);
 }
 function empresa(array &$db, string $id): ?array { foreach ($db['empresas'] as $i => $e) if ($e['id'] === $id) return [$i]; return null; }
 
@@ -92,16 +119,16 @@ switch ($action) {
     escribir($file, $nuevo); out(['ok' => true]);
 
   case 'login':
-    out(['ok' => hash_equals((string)$cfg['pin'], (string)($in['pin'] ?? ''))]);
+    out(['ok' => pinValido($cfg, $in, $dir)]);
 
   case 'save':
-    auth($cfg, $in);
+    auth($cfg, $in, $dir);
     $nuevo = limpiarDb($in['db'] ?? []);
     $nuevo['pedidos'] = $db['pedidos'] ?? [];
     escribir($file, $nuevo); out(['ok' => true]);
 
   case 'orders':
-    auth($cfg, $in);
+    auth($cfg, $in, $dir);
     out(['pedidos' => $db['pedidos'] ?? []]);
 
   case 'status': // el cliente consulta sus propios pedidos por id
@@ -150,7 +177,7 @@ switch ($action) {
     out(['pedido' => $pedido]);
 
   case 'setStatus':
-    auth($cfg, $in);
+    auth($cfg, $in, $dir);
     $estado = (string)($in['estado'] ?? '');
     if (!in_array($estado, ESTADOS, true)) fail('Estado inválido');
     foreach ($db['pedidos'] as &$ped) {
